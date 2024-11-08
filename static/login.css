@@ -15,7 +15,7 @@ body {
     background-color: #fff;
     border-radius: 15px;
     width: 1400px;
-    height: 700px;
+    height: 800px;
     z-index: 1;
     display: grid;
     grid-template-columns: repeat(2, 1fr) 0 repeat(2, 1fr);
@@ -37,37 +37,76 @@ body {
 / ------------------------------------------ */
 .seccion-izq{
     grid-area: 2 / 1 / 3 / 3;
-    width: 80%;
+    width: 500px;
     text-align: center;
-    padding: 40px 40px;
+    padding: 0px 40px;
 }
 
 /* Estilos del titulo */
 .login-txt2{
     font-size: 45px;
     font-weight: 200;
-    margin-bottom: 40px;
+    margin-bottom: 70px;
 }
 
 /* Estilo del Subtitulo */
 .login-txt3{
     font-size: 25px;
     font-weight: 200;
+    margin-bottom: 60px;
 }
 
 label {
-    margin-bottom: 40px;
-
+    margin-bottom: 9px;
+    /* Espacio entre el label y el input */
+    font-weight: bold;
+    /* Opcional: para resaltar el label */
 }
+
 input {
-    border-radius: 7px;
-    padding: 5px 10px;
-    margin-top: 40px;
+    border-radius: 15px;
+    padding: 10px 10px;
+    margin-top: 0;
+    /* Elimina el margen superior del input para que esté cerca del label */
+    width: 300px;
+    /* Asegura que el input ocupe todo el ancho del contenedor */
 }
 
+.input-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+    /* Ajusta el espacio inferior entre campos */
+}
+
+.btn {
+    padding: 10px 10px;
+    border-radius: 15px;
+    width: 120px;
+    font-family: 'Quicksand';
+    font-weight: 500;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.separator {
+    margin-left: -200px;
+    width: 2px; /* Ancho del separador */
+    height: 100%; /* Ajusta para que ocupe toda la altura del contenedor */
+    background-color: #000000; /* Color del separador */
+    margin: 0 20px; /* Espacio a los lados del separador */
+}
 /* --------------------------------------------
 / Diseño de la sección derecha
 / ------------------------------------------ */
 .seccion-der{
     grid-area: 2 / 4 / 3 / 6;
+    width: 900px;
+}
+
+.img-login {
+    width: 80%;
+    height: auto;
+    padding: 30px 60px;
 }
