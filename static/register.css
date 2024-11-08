@@ -1,0 +1,11 @@
+body {
+    background-color: #24302A;
+    font-family: 'Quicksand', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 70px;
+}
