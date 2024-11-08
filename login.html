@@ -1,0 +1,61 @@
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/login.css">
+    <title>Iniciar Sesión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Quicksand -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;900&family=Quicksand:wght@300;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-box">
+        <h1 class="login-txt">INICIAR SESIÓN</h1>
+        
+        <!-- Sección Izquierda-->
+        <div class="seccion-izq">
+
+            <h2 class="login-txt2">Bienevnido de vuelta</h2>
+            <h3 class="login-txt3">Ingresa tu correo y tu contraseña para acceder a MyBiblio :D</h3>
+            <!-- Sección del input del email -->
+            <div class="input-box">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Ingresa tu Correo">
+                <i class="icon email"></i>
+            </div>
+
+            <!-- ingreso del correo -->
+            <div class="input-box">
+                <label for="contraseña">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu Contraseña">
+                <i class="icon lock"></i>
+            </div>
+
+            <!-- Boton para hacer login -->
+            <button type="submit" class="btn">Registrarse</button>
+
+            <!-- URL para regresar directo al menú -->
+            <div class="returns">
+                <a href="biblio.html" class="return-menu">Regresar al menú</a>
+                <p>
+                    ¿No tienes una cuenta? <a href="register.html" class="return-login">Registrate</a> Aquí
+                </p>
+            </div>
+        </div>
+
+        <div class="separator"></div> <!-- Separador aquí -->
+
+        <div class="seccion-der">
+            <!-- Imagen de la parte derecha -->
+            <img class="img-login" src="imgs/login/MyBiblio.png" alt="">
+        </div>
+    </div>
+</body>
+
+</html>
