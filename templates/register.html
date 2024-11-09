@@ -1,8 +1,9 @@
-<html>
+<!DOCTYPE html>
+<html lang="es">
     <head>
         <title>My Biblio | Registro</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="static/register.css">
+        <link rel="stylesheet" href="../assets/static/register.css">
 
         <!-- Quicksand -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,35 +16,34 @@
         <div class="container">
             <div class="signup-box">
                 <h2>REGISTRARSE</h2>
-                <form>
+                <form action="../public/archivo.php" method="POST">
                     <div class="input-box">
                         <label for="nombre">Nombre(s)</label>
-                        <input type="text" id="nombre" placeholder="Ingresa tu Nombre">
+                        <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu Nombre" required>
                         <i class="icon user"></i>
                     </div>
                     <div class="input-box">
                         <label for="apellido">Apellido(s)</label>
-                        <input type="text" id="aepllido" placeholder="Ingresa tu Apellido">
+                        <input type="text" id="apellido" name="apellido" placeholder="Ingresa tu Apellido" required>
                         <i class="icon user"></i>
                     </div>
                     <div class="input-box">
                         <label for="email">Email</label>
-                        <input type="email" id="email" placeholder="Ingresa tu Correo">
+                        <input type="email" id="email" name="correo" placeholder="Ingresa tu Correo" required>
                         <i class="icon email"></i>
                     </div>
                     <div class="input-box">
                         <label for="contraseña">Contraseña</label>
-                        <input type="password" id="password" placeholder="Ingresa tu Contraseña">
+                        <input type="password" id="password" name="password" placeholder="Ingresa tu Contraseña" required>
                         <i class="icon lock"></i>
                     </div>
                     <div class="recordarme">
                         <input type="checkbox" id="remember">
                         <label for="remember">Recordarme</label>
                     </div>
-                    <!-- Boton para mostar mensaje al registrarse -->
                     <button type="submit" class="btn">Registrarse</button>
-                    
-                    <div class="returns">   
+                
+                    <div class="returns">
                         <a href="biblio.html" class="return-menu">Regresar al menú</a>
                         <p>
                             ¿Ya tienes una cuenta? <a href="login.html" class="return-login">Inicia Sesión</a>
