@@ -9,3 +9,25 @@ body {
     align-items: center;
     padding: 50px 70px;
 }
+
+/*
+/
+/ */
+
+.container{
+    background-color: #fff;
+    color: #000;
+    padding: 30px 50px;
+    width: 400px;
+    text-align: center;
+    border-radius: 15px;
+}
+
+.input-box{
+    width: 100%;
+}
+
+input {
+    border-radius: 10px;
+    margin-top: 10px;
+}
