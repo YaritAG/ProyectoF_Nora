@@ -13,6 +13,6 @@ function GetConexion()
         return $conn;
     } catch (PDOException $e) {
         die("Conexión Fallida: " . $e->getMessage());
-    }
+    } 
 }
 ?>

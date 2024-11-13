@@ -1,8 +1,9 @@
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
         <meta charset="UTF-8">
         <title>Géneros | MiBiblio</title>
-        <link rel="stylesheet" href="static/generos.css">
+        <link rel="stylesheet" href="../../assets/static/generos.css">
 
         <!-- Quicksand -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

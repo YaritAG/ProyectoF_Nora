@@ -1,27 +1,39 @@
 <?php
-require_once 'db.php'; // Asegúrate de que la conexión a la base de datos esté correcta
+require_once '../admin/db.php';
 
-$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['RegistrarUser'])) {
+    $nombre = $_POST['nombre'];
+    $apellido = $_POST['apellido'];
+    $correo = $_POST['correo'];
+    $password = $_POST['password']; // Guarda sin hash
 
-if (!empty($_POST['nombre']) && !empty($_POST['apellido']) && !empty($_POST['correo']) && !empty($_POST['password'])) {
-    // Preparar la consulta para insertar un nuevo usuario
-    $sql = "INSERT INTO tpersonas (Nombre, Apellido, Correo, Password) VALUES (:nombre, :apellido, :correo, :password)";
+    if (empty($nombre) || empty($apellido) || empty($correo) || empty($password)) {
+        die("Todos los campos son obligatorios.");
+    }
+
+    $conn = GetConexion();
+
+    $sql_check = "SELECT * FROM tpersonas WHERE Correo = :correo";
+    $stmt_check = $conn->prepare($sql_check);
+    $stmt_check->bindParam(':correo', $correo);
+    $stmt_check->execute();
+
+    if ($stmt_check->rowCount() > 0) {
+        die("El correo electrónico ya está registrado.");
+    }
+
+    $sql = "INSERT INTO tpersonas (Nombre, Apellido, Correo, Password) 
+            VALUES (:nombre, :apellido, :correo, :password)";
     $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':nombre', $nombre);
+    $stmt->bindParam(':apellido', $apellido);
+    $stmt->bindParam(':correo', $correo);
+    $stmt->bindParam(':password', $password); // Sin hashing
 
-    // Vincular los parámetros
-    $stmt->bindParam(':nombre', $_POST['nombre']);
-    $stmt->bindParam(':apellido', $_POST['apellido']);
-    $stmt->bindParam(':correo', $_POST['correo']);
-
-    // Encriptar la contraseña antes de insertarla en la base de datos
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    $stmt->bindParam(':password', $password);
-
-    // Ejecutar la consulta y verificar si se inserta correctamente
     if ($stmt->execute()) {
-        $message = 'Usuario creado con éxito'; // Mensaje si la inserción fue exitosa
+        header("Location: login.php");
     } else {
-        $message = 'Lo siento, hubo un problema al crear tu cuenta'; // Mensaje si hubo un error
+        echo "Error al registrar: " . $stmt->errorInfo()[2];
     }
 }
 ?>
@@ -32,7 +44,7 @@ if (!empty($_POST['nombre']) && !empty($_POST['apellido']) && !empty($_POST['cor
     <head>
         <title>My Biblio | Registro</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="../assets/static/register.css">
+        <link rel="stylesheet" href="../../assets/static/register.css">
 
         <!-- Quicksand -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +55,8 @@ if (!empty($_POST['nombre']) && !empty($_POST['apellido']) && !empty($_POST['cor
     </head>
     <body>
         <div class="container">
-            <div class="signup-box">testo testo blah blah
+            <div class="signup-box">
+                
                 <h2>REGISTRARSE</h2>
 
                 <?php session_start(); if (isset($_SESSION['message'])): ?>
@@ -53,7 +66,7 @@ if (!empty($_POST['nombre']) && !empty($_POST['apellido']) && !empty($_POST['cor
                 <?php unset($_SESSION['message']); ?>
                 <?php endif; ?>
                 
-                <form action="../public/procesar_registro.php" method="POST">
+                <form action="register.php" method="POST">
                     <div class="input-box">
                         <label for="nombre">Nombre(s)</label><br>
                         <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu Nombre" required>
@@ -83,13 +96,13 @@ if (!empty($_POST['nombre']) && !empty($_POST['apellido']) && !empty($_POST['cor
                     <input type="submit" class="btn" name="RegistrarUser" value="Registrar">
                     
                     <div class="returns">
-                        <a href="biblio.html" class="return-menu">Regresar al menú</a>
+                        <a href="../../templates/biblio.html" class="return-menu">Regresar al menú</a>
                         <p>
-                            ¿Ya tienes una cuenta? <a href="login.html" class="return-login">Inicia Sesión</a>
+                            ¿Ya tienes una cuenta? <a href="login.php" class="return-login">Inicia Sesión</a>
                         </p>
                     </div>
                 </form>
             </div>
         </div>
-        </body>
+    </body>
 </html>

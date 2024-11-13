@@ -1,32 +1,40 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once '../admin/db.php';
 
-// Si ya existe una sesión activa, redirige a la página del menú
-if (isset($_SESSION['user_id'])) {
-    header('Location: ../templates/menu.html');
-    exit;
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['LogUser'])) {
+    $correo = $_POST['correo'];
+    $password = $_POST['password'];
 
-// Verifica si se han enviado datos del formulario
-if (!empty($_POST['correo']) && !empty($_POST['password'])) {
-    // Preparamos la consulta para obtener el correo y la contraseña de la base de datos
-    $sql = "SELECT id, Correo, Password FROM tpersonas WHERE Correo = :correo";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':correo', $_POST['correo']);
-    $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Variable para mensajes de error
-    $message = '';
-
-    // Verificamos si el correo existe y si la contraseña coincide usando password_verify
-    if ($result && password_verify($_POST['password'], $result['Password'])) {
-        $_SESSION['user_id'] = $result['id']; // Guardamos el ID de usuario en la sesión
-        header("Location: ../templates/menu.html"); // Redirige al menú
+    if (empty($correo) || empty($password)) {
+        $_SESSION['message'] = "Todos los campos son obligatorios.";
+        header("Location: ../../templates/login.html");
         exit;
+    }
+
+    $conn = GetConexion();
+
+    $sql = "SELECT Password FROM tpersonas WHERE Correo = :correo";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':correo', $correo);
+    $stmt->execute();
+
+    if ($stmt->rowCount() > 0) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $storedPassword = $result['Password'];
+
+        if ($password === $storedPassword) { // Comparación directa
+            header("Location: ../../templates/menu.html");
+            exit;
+        } else {
+            $_SESSION['message'] = "Contraseña incorrecta.";
+            header("Location: ../../templates/login.html");
+            exit;
+        }
     } else {
-        $message = 'Lo siento, las credenciales no coinciden'; // Mensaje de error si las credenciales no coinciden
+        $_SESSION['message'] = "La cuenta no está registrada.";
+        header("Location: ../../templates/login.html");
+        exit;
     }
 }
 ?>
@@ -34,9 +42,10 @@ if (!empty($_POST['correo']) && !empty($_POST['password'])) {
 <!-- HTML -->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/static/login.css">
+    <link rel="stylesheet" href="../../assets/static/login.css">
     <title>Iniciar Sesión</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -51,48 +60,46 @@ if (!empty($_POST['correo']) && !empty($_POST['password'])) {
 <body>
     <div class="login-box">
         <h1 class="login-txt">INICIAR SESIÓN</h1>
-        
+
         <!-- Sección Izquierda-->
         <div class="seccion-izq">
-            
-            <h2 class="login-txt2">Bienevnido de vuelta</h2>
+
+            <h2 class="login-txt2">Bienvenido de vuelta</h2>
             <h3 class="login-txt3">Ingresa tu correo y tu contraseña para acceder a MyBiblio :D</h3>
-           
-            <?php session_start(); if (isset($_SESSION['message'])): ?>
-            <p class="message">
-                <?= $_SESSION['message']; ?>
-            </p>
-            <?php unset($_SESSION['message']); ?>
+
+            <!-- Mostrar mensaje si las credenciales no coinciden -->
+            <?php if (!empty($message)): ?>
+                <p class="message"><?php echo $message; ?></p>
             <?php endif; ?>
-            
+
             <!-- Sección del input del email -->
-            <form action="../public/procesar_login.php" method="POST">
+            <form action="login.php" method="POST">
                 <div class="input-box">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="correo" placeholder="Ingresa tu Correo" required>
                     <i class="icon email"></i>
                 </div>
-            
+
                 <div class="input-box">
                     <label for="contraseña">Contraseña</label>
                     <input type="password" id="password" name="password" placeholder="Ingresa tu Contraseña" required>
                     <i class="icon lock"></i>
                 </div>
-            
+
                 <input type="submit" class="btn" name="LogUser" value="Iniciar Sesión">
             </form>
 
             <!-- URL para regresar directo al menú -->
             <div class="returns">
-                <a href="biblio.html" class="return-menu">Regresar al menú</a>
+                <a href="../../templates/biblio.html" class="return-menu">Regresar al menú</a>
                 <p>
-                    ¿No tienes una cuenta? <a href="register.html" class="return-login">Registrate</a> Aquí
+                    ¿No tienes una cuenta? <a href="register.php" class="return-login">Regístrate</a> Aquí
                 </p>
             </div>
         </div>
 
         <!-- Separador aquí -->
-        <div class="separator"></div> 
+        <div class="separator"></div>
 
         <div class="seccion-der">
             <!-- Imagen de la parte derecha -->
