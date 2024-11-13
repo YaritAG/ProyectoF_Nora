@@ -1,6 +1,7 @@
 body{
     background-color: #24302A;
     font-family: 'Quicksand';
+    color: #fff;
 }
 
 .imagen-cabecera{
@@ -8,4 +9,12 @@ body{
     height: auto;
     margin: 0;
     left: 0%;
+}
+
+a body{
+    text-decoration: none;
+}
+
+a body::after {
+    text-decoration: none;
 }

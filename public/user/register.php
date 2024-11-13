@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['RegistrarUser'])) {
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
     $correo = $_POST['correo'];
-    $password = $_POST['password']; // Guarda sin hash
+    $password = $_POST['password'];
 
     if (empty($nombre) || empty($apellido) || empty($correo) || empty($password)) {
         die("Todos los campos son obligatorios.");
@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['RegistrarUser'])) {
 
     $conn = GetConexion();
 
+    // Verificar si el correo ya está registrado
     $sql_check = "SELECT * FROM tpersonas WHERE Correo = :correo";
     $stmt_check = $conn->prepare($sql_check);
     $stmt_check->bindParam(':correo', $correo);
@@ -22,16 +23,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['RegistrarUser'])) {
         die("El correo electrónico ya está registrado.");
     }
 
-    $sql = "INSERT INTO tpersonas (Nombre, Apellido, Correo, Password) 
-            VALUES (:nombre, :apellido, :correo, :password)";
+    // Determinar el rol basado en el correo
+    $rol = ($correo === 'admin@miempresa.com') ? 'admin' : 'usuario';
+
+    // Insertar el usuario en la base de datos sin encriptar la contraseña
+    $sql = "INSERT INTO tpersonas (Nombre, Apellido, Correo, Password, rol) 
+            VALUES (:nombre, :apellido, :correo, :password, :rol)";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':nombre', $nombre);
     $stmt->bindParam(':apellido', $apellido);
     $stmt->bindParam(':correo', $correo);
     $stmt->bindParam(':password', $password); // Sin hashing
+    $stmt->bindParam(':rol', $rol);
 
     if ($stmt->execute()) {
         header("Location: login.php");
+        exit;
     } else {
         echo "Error al registrar: " . $stmt->errorInfo()[2];
     }
@@ -44,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['RegistrarUser'])) {
     <head>
         <title>My Biblio | Registro</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="../../assets/static/register.css">
+        <link rel="stylesheet" href="static/register.css">
 
         <!-- Quicksand -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

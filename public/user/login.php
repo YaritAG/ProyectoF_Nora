@@ -2,39 +2,36 @@
 session_start();
 require_once '../admin/db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['LogUser'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $correo = $_POST['correo'];
     $password = $_POST['password'];
 
-    if (empty($correo) || empty($password)) {
-        $_SESSION['message'] = "Todos los campos son obligatorios.";
-        header("Location: ../../templates/login.html");
-        exit;
-    }
-
+    // Conexión a la base de datos
     $conn = GetConexion();
 
-    $sql = "SELECT Password FROM tpersonas WHERE Correo = :correo";
-    $stmt = $conn->prepare($sql);
+    // Consulta para obtener el usuario con el correo ingresado y contraseña
+    $query = "SELECT * FROM tpersonas WHERE Correo = :correo AND Password = :password";
+    $stmt = $conn->prepare($query);
     $stmt->bindParam(':correo', $correo);
+    $stmt->bindParam(':password', $password);
     $stmt->execute();
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($stmt->rowCount() > 0) {
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $storedPassword = $result['Password'];
+    // Verificar si el usuario existe y si tiene rol de admin
+    if ($usuario) {
+        $_SESSION['user_id'] = $usuario['id_Personas'];
+        $_SESSION['user_name'] = $usuario['Nombre'];
+        $_SESSION['user_role'] = $usuario['rol']; // Guarda el rol en la sesión
 
-        if ($password === $storedPassword) { // Comparación directa
-            header("Location: ../../templates/menu.html");
-            exit;
+        // Redirigir basado en el rol
+        if ($usuario['rol'] === 'admin') {
+            header('Location: ../admin/ventanaAdmin.php'); // Redirige a una página de administrador
         } else {
-            $_SESSION['message'] = "Contraseña incorrecta.";
-            header("Location: ../../templates/login.html");
-            exit;
+            header('Location: ../../templates/menu.html'); // Redirige a una página de usuario regular
         }
-    } else {
-        $_SESSION['message'] = "La cuenta no está registrada.";
-        header("Location: ../../templates/login.html");
         exit;
+    } else {
+        echo "Credenciales incorrectas.";
     }
 }
 ?>
@@ -45,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['LogUser'])) {
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../../assets/static/login.css">
+    <link rel="stylesheet" href="static/login.css">
     <title>Iniciar Sesión</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -67,10 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['LogUser'])) {
             <h2 class="login-txt2">Bienvenido de vuelta</h2>
             <h3 class="login-txt3">Ingresa tu correo y tu contraseña para acceder a MyBiblio :D</h3>
 
-            <!-- Mostrar mensaje si las credenciales no coinciden -->
-            <?php if (!empty($message)): ?>
-                <p class="message"><?php echo $message; ?></p>
-            <?php endif; ?>
 
             <!-- Sección del input del email -->
             <form action="login.php" method="POST">
@@ -89,6 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['LogUser'])) {
                 <input type="submit" class="btn" name="LogUser" value="Iniciar Sesión">
             </form>
 
+            <!-- Mostrar mensaje si las credenciales no coinciden -->
+            <?php if (!empty($message)): ?>
+                <p class="message"><?php echo $message; ?></p>
+            <?php endif; ?>
+
             <!-- URL para regresar directo al menú -->
             <div class="returns">
                 <a href="../../templates/biblio.html" class="return-menu">Regresar al menú</a>
@@ -103,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['LogUser'])) {
 
         <div class="seccion-der">
             <!-- Imagen de la parte derecha -->
-            <img class="img-login" src="imgs/login/MyBiblio.png" alt="">
+            <img class="img-login" src="../../assets/imgs/login/MyBiblio.png" alt="">
         </div>
     </div>
 </body>
