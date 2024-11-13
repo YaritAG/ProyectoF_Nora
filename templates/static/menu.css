@@ -1,0 +1,11 @@
+body{
+    background-color: #24302A;
+    font-family: 'Quicksand';
+}
+
+.imagen-cabecera{
+    width: 1000px;
+    height: auto;
+    margin: 0;
+    left: 0%;
+}
