@@ -31,7 +31,7 @@ session_start();
                         <a href="../public/user/libros.php" class="btn-libros">Libros</a>
                         
                         <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                            <a href="../public/admin/ventanaAdmin.php">Panel de Administración</a>
+                            <a href="../public/admin/ventanaAdmin.php" class="btn-admin">Panel de Administración</a>
                         <?php endif; ?>
                     </div>
 
