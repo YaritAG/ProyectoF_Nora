@@ -1,20 +1,40 @@
 body{
     background-color: #24302A;
     font-family: 'Quicksand';
-    color: #fff;
+    color: #000;
 }
 
+/* -------------------------------------
+/ Contnedor General
+/ ------------------------------------- */
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+a::after {
+    text-decoration: none;
+    color: #000;
+}
+
+/* Diseños de la imagen de Cabecera */
 .imagen-cabecera{
-    width: 1000px;
+    width: 100%;
     height: auto;
     margin: 0;
-    left: 0%;
+    left: 0;
 }
 
-a body{
-    text-decoration: none;
+.img-cabecera {
+    width: 101%;
+    margin-left: -6px;
+    margin-top: -6px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
 }
 
-a body::after {
-    text-decoration: none;
+.seccion-principal {
+    margin: 50px 40px;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 20px 90px;
 }

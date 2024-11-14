@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($usuario['rol'] === 'admin') {
             header('Location: ../admin/ventanaAdmin.php'); // Redirige a una página de administrador
         } else {
-            header('Location: ../../templates/menu.html'); // Redirige a una página de usuario regular
+            header('Location: ../../templates/menu.php'); // Redirige a una página de usuario regular
         }
         exit;
     } else {

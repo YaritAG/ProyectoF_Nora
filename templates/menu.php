@@ -1,3 +1,7 @@
+<?php 
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,6 +29,7 @@
                         <a href="../public/user/generos.php" class="btn-generos">Géneros</a>
                         <a href="about.html" class="btn-about">Acerca de</a>
                         <a href="../public/user/libros.php" class="btn-libros">Libros</a>
+                        
                         <?php if ($_SESSION['user_role'] === 'admin'): ?>
                             <a href="../public/admin/ventanaAdmin.php">Panel de Administración</a>
                         <?php endif; ?>
