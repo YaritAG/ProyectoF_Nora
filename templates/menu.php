@@ -36,8 +36,8 @@ session_start();
                     </div>
 
                     <div class="logout">
-                        <a href="../public/user/perfil.php">Mi Perfil</a>
-                        <a href="../public/user/login.php">Cerrar Sesión</a>
+                        <a href="../public/user/perfil.php" class="btn-logout">Mi Perfil</a>
+                        <a href="../public/user/login.php" class="btn-logout">Cerrar Sesión</a>
                     </div>
                 </nav>
 
