@@ -1,6 +1,6 @@
 .barra-superior {
     font-family: 'Quicksand';
-    width: 97.6%;
+    width: 100%;
     background-color: #030504;
     color: #fff;
     display: flex;
@@ -12,13 +12,13 @@
     padding: 10px 20px;
     z-index: 10;
     backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(3px);
-        border-radius: 5px;
-        box-shadow: 0 5px 30px 0 rgba(22, 32, 220, 0.37);
-        padding-right: 35px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(3px);
+    border-radius: 5px;
+    box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.7) !important;
+    /* Sombra negra con mayor opacidad */
+    padding-right: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
-
 
 .btn-verLibros,
 .btn-verPrestamos,

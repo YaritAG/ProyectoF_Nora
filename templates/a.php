@@ -25,8 +25,8 @@
         </div>
 
         <div class="logout">
-            <a href="../public/user/perfil.php" class="btn-perfil">Mi Perfil</a>
-            <a href="../public/user/login.php" class="btn-logout">Cerrar Sesión</a>
+            <a href="../user/perfil.php" class="btn-perfil">Mi Perfil</a>
+            <a href="../user/login.php" class="btn-logout">Cerrar Sesión</a>
         </div>
     </nav>
 

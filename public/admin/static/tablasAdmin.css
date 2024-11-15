@@ -11,10 +11,6 @@ body {
     padding: 20px 0px;
     display: flex;
     flex-direction: column;
-    /* Cambia la dirección a columna */
-
-    height: 100vh;
-    /* Asegura que ocupe toda la altura de la pantalla */
 }
 
 h1 {
@@ -22,4 +18,183 @@ h1 {
     font-size: 50px;
     width: auto;
     text-align: center;
+}
+
+/* -----------------------------------------------
+/* Inicio de la Sección de la tabla
+/ ----------------------------------------------- */
+.seccion-tabla {
+    padding: 10px 60px;
+}
+
+/* -----------------------------------------------
+/* Sección del buscador 
+/ ----------------------------------------------- */
+.seccion-buscador {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;    
+    width: 100%;
+    height: auto;
+}
+
+.buscador {
+    height: 25px;
+    border-radius: 5px;
+    border: 1px solid #000;
+    margin-right: 20px;
+    padding: 5px 10px;
+}
+
+/* ---------------------------------------------
+/ Estilo para los inputs
+/ --------------------------------------------- */
+.inputs {
+    margin-top: 70px;
+}
+
+h3 {
+    width: auto;
+    text-align: center;
+    font-weight: 300;
+}
+
+/* Estilos generales para el formulario */
+#editor-form {
+    margin-top: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.input-editor {
+    border-radius: 5px;
+    border: 1px solid #24302A;
+    padding: 4px 10px;
+}
+
+.seccion-1 {
+    grid-area: 1 / 1 / 2 / 3;
+}
+
+.seccion-2 {
+    grid-area: 1 / 3 / 2 / 5;
+}
+
+.seccion-3 {
+    grid-area: 1 / 5 / 2 / 7;
+}
+
+/* Estilos para el contenedor de botones */
+.buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Estilos para los botones */
+.btn-save,
+.btn-cancel {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 40px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn-save {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-cancel {
+    background-color: #f44336;
+    color: white;
+}
+
+/* ---------------------------------------------
+/ Estilo para la tabla
+/ --------------------------------------------- */
+/* Contenedor externo */
+.table-outer-wrapper {
+    width: 100%;
+    overflow: hidden;
+    margin-top: -250px;
+}
+
+/* Barra de desplazamiento superior */
+.scrollbar-top {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 16px; /* Ajusta la altura para la barra de desplazamiento */
+    background: transparent;
+    margin-bottom: -16px; /* Hace que el espacio superior de scroll se vea en la parte superior */
+}
+
+/* Div de sincronización de ancho en la barra superior */
+.scroll-sync {
+    width: 100%; /* Asegúrate de que el ancho coincida con el de la tabla */
+    height: 1px; /* Oculta el contenido, solo se usa para el desplazamiento */
+}
+
+/* Contenedor de la tabla */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Permite desplazamiento horizontal */
+    -webkit-overflow-scrolling: touch; /* Suaviza el scroll en móviles */
+    max-height: 400px; /* Ajusta la altura de la tabla si es necesario */
+}
+
+/* Estilos de la tabla */
+table {
+    width: 100%;
+    border-radius: 15px;
+    border-collapse: collapse;
+    background-color: #fff;
+    color: #000;
+}
+
+/* Estilos para las celdas */
+table th,
+table td {
+    padding: 10px;
+    font-family: 'Quicksand';
+    text-align: left;
+    border-bottom: 1px solid #000;
+    text-align: center;
+}
+
+/* Estilo para el encabezado */
+table th {
+    font-family: 'Quicksand';
+    background-color: #4E5A54;
+    font-weight: bold;
+    color: #fff;
+}
+
+table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.btn-editar,
+.btn-borrar {
+    border-radius: 10px;
+    padding: 10px 20px;
+    border: 1px solid #000;
+}
+
+.btn-borrar{
+    background-color: #f44336;
+    color: #fff;
+    margin-top: 10px;
 }
