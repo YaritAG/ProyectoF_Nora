@@ -28,7 +28,13 @@
 .txt-bienvenida {
     font-size: 60px;
     font-weight: 400;
-}
+        overflow: hidden;
+            /* Oculta el texto mientras se anima */
+            white-space: nowrap;
+            /* Mantiene el texto en una sola línea */
+            border-right: 2px solid #00FF00;
+            /* Cursor que simula el efecto de escritura */
+            animation: typing 5s steps(40, end), blink 0.7s step-end infinite;
 
 .txt-saludo {
     font-size: 35px;
@@ -62,4 +68,24 @@
 .btn-register:hover {
     background-color: #527C1D;
     /* Cambia el color al pasar el cursor */
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+        /* Empieza sin texto visible */
+    }
+
+    to {
+        width: 100%;
+        /* El texto aparece progresivamente */
+    }
+}
+
+/* Blinking cursor animation */
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
 }
