@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
             <div class="seccion-buscador">
                 <form method="GET" action="verUsuarios.php">
                     <input type="text" class="buscador" placeholder="Buscar..." name="query" aria-label="Buscar">
-                    <button type="submit"><i class="fas fa-search"></i></button>
+                    <button class="lupa" type="submit"><i class="fas fa-search"></i></button>
                 </form>
             </div>
 

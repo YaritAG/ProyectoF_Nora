@@ -22,6 +22,7 @@
             <a href="../../templates/menu.php" class="btn-menu">Menú Principal</a>
             <a href="ventanaAdmin.php" class="btn-admin">Menu de Admin</a>
             <a href="verUsuarios.php" class="btn-users">Ver Usuarios</a>
+            <a href="verAutores.php" class="btn-autores">Ver Autores</a>
         </div>
 
         <div class="logout">
@@ -61,7 +62,8 @@
 .btn-users,
 .btn-menu,
 .btn-perfil,
-.btn-logout {
+.btn-logout,
+.btn-autores {
     margin-right: 20px;
     border-radius: 5px;
     padding: 6px 10px;
@@ -74,7 +76,8 @@ a.btn-libros,
 a.btn-users,
 a.btn-menu,
 a.btn-perfil,
-a.btn-logout {
+a.btn-logout,
+a.btn-autores {
     text-decoration: none;
     color: inherit; 
     position: relative;
@@ -90,7 +93,8 @@ a.btn-libros::before,
 a.btn-users::before,
 a.btn-menu::before,
 a.btn-perfil::before,
-a.btn-logout::before {
+a.btn-logout::before,
+a.btn-autores::before  {
 content: "";
     position: absolute;
     width: 100%;
@@ -110,7 +114,8 @@ a.btn-libros:hover::before,
 a.btn-users:hover::before,
 a.btn-menu:hover::before,
 a.btn-perfil:hover::before,
-a.btn-logout:hover::before{
+a.btn-logout:hover::before,
+a.btn-autores:hover::before{
 transform: scaleX(1);
 }      
     </style> 
