@@ -33,12 +33,7 @@ echo "Bienvenido al panel de administración";
 </head>
 
 <body>
-    <nav class="barra-superior" style="background-color: #333; color: #fff; padding: 10px;">
-    <!-- contenido de la barra de navegación -->
-    </nav>
-    <!-- Incluye la barra de navegación desde el archivo headerAdmin.php -->
     <?php include '../../assets/partials/headerAdmin.php'; ?>
-
     <div class="container">
         <h1>Bienvenido admin</h1>
         <!-- Aquí puedes agregar más contenido exclusivo para el administrador -->
