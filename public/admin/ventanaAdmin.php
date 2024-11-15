@@ -10,30 +10,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     exit;
 }
 
-// Contenido exclusivo para administradores
-echo "Bienvenido al panel de administración";
 
+include '../../templates/a.php'; 
 ?>
-
-<!DOCTYPE html>
-<html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
-    <link rel="stylesheet" href="static/admin.css">
-
-    <!-- Quicksand -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Quicksand:wght@300..700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="static/admin.css?ver=<?php echo time(); ?>">
 </head>
-
-<body>
-    <?php include '../../assets/partials/headerAdmin.php'; ?>
     <div class="container">
         <h1>Bienvenido admin</h1>
         <!-- Aquí puedes agregar más contenido exclusivo para el administrador -->

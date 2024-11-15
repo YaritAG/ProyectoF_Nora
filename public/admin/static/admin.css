@@ -2,3 +2,10 @@ body {
     background-color: #fff;
     font-family: 'Quicksand';
 }
+
+.container {
+    margin: 50px 40px;
+    background-color: #24302A;;
+    border-radius: 15px;
+    padding: 20px 90px;
+}
