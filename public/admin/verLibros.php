@@ -76,7 +76,55 @@ include '../../templates/a.php';
             <div class="inputs">
                 <div class="editors">
                     <h3>Editar o Agregar Libro</h3>
+                    <form id="editor-form" action="verLibros.php" method="POST">
+                        <!-- Campo oculto para almacenar el ID del libro que se está editando -->
+                        <input type="hidden" id="id" name="id">
+
+                        <div class="seccion-1">
+                            <label for="nombre">Nombre:</label>
+                            <input class="input-editor" type="text" id="nombre" name="nombre" required><br><br>
+
+                             <label for="nombre">Ejemplar:</label>
+                            <input class="input-editor" type="text" id="ejemplar" name="ejemplar" required><br><br>
+                        </div>
+                        
+                        <div class="seccion-2">
+                            <label for="nombre">Editorial:</label>
+                            <input class="input-editor" type="text" id="editorial" name="editorial" required><br><br>
+
+                             <label for="nombre">Género:</label>
+                            <input class="input-editor" type="text" id="genero" name="genero" required><br><br>
+                        </div>
+
+                        <div class="seccion-3">
+                            <label for="nombre">Páginas:</label>
+                            <input class="input-editor" type="text" id="paginas" name="páginas" required><br><br>
+
+                            <label for="nombre">Año:</label>
+                            <input class="input-editor" type="text" id="año" name="año" required><br><br>
+                        </div>
+                    </form>
                 </div>
+            </div>
+
+            <!-- Sección de la tabla -->
+            <div class="table-wrapper"v>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
