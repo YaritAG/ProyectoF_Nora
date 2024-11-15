@@ -1,0 +1,41 @@
+.barra-superior {
+    width: 97.6%;
+    background-color: #030504;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    top: 0;
+    height: 40px;
+    position: sticky;
+    padding: 10px 20px;
+    z-index: 10;
+}
+
+
+.btn-prestamo,
+.btn-generos,
+.btn-about,
+.btn-libros,
+.btn-admin,
+.btn-logout,
+.btn-perfil,
+.btn-menu {
+    margin-right: 20px;
+    border-radius: 5px;
+    padding: 6px 10px;
+    border: 1px solid #fff;
+}
+
+a.btn-prestamo,
+a.btn-generos,
+a.btn-about,
+a.btn-libros,
+a.btn-admin,
+a.btn-logout,
+a.btn-perfil,
+a.btn-menu {
+    text-decoration: none;
+    color: inherit;
+    /* Mantiene el color del enlace como el color de su contenedor o página */
+}
