@@ -35,10 +35,8 @@ echo "Bienvenido al panel de administración";
         </div>
         
         <div class="logout">
-            <div class="logout">
-                <a href="../public/user/perfil.php">Mi Perfil</a>
-                 <a href="logout.php">Cerrar Sesión</a> 
-            </div>
+            <a href="../public/user/perfil.php" class="btn-perfil">Mi Perfil</a>
+            <a href="../public/user/login.php" class="btn-logout">Cerrar Sesión</a>
         </div>
     </nav>
 

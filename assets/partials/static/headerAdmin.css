@@ -1,4 +1,5 @@
 .barra-superior {
+    font-family: 'Quicksand';
     width: 97.6%;
     background-color: #030504;
     color: #fff;
@@ -10,32 +11,71 @@
     position: sticky;
     padding: 10px 20px;
     z-index: 10;
+    backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(3px);
+        border-radius: 5px;
+        box-shadow: 0 5px 30px 0 rgba(22, 32, 220, 0.37);
+        padding-right: 35px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 
-.btn-prestamo,
-.btn-generos,
-.btn-about,
-.btn-libros,
+.btn-verLibros,
+.btn-verPrestamos,
 .btn-admin,
-.btn-logout,
+.btn-libros,
+.btn-users,
+.btn-menu,
 .btn-perfil,
-.btn-menu {
+.btn-logout {
     margin-right: 20px;
     border-radius: 5px;
     padding: 6px 10px;
-    border: 1px solid #fff;
 }
 
-a.btn-prestamo,
-a.btn-generos,
-a.btn-about,
-a.btn-libros,
+a.btn-verLibros,
+a.btn-verPrestamos,
 a.btn-admin,
-a.btn-logout,
+a.btn-libros,
+a.btn-users,
+a.btn-menu,
 a.btn-perfil,
-a.btn-menu {
+a.btn-logout {
     text-decoration: none;
-    color: inherit;
-    /* Mantiene el color del enlace como el color de su contenedor o página */
+    color: inherit; 
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
 }
+
+
+a.btn-verLibros::before,
+a.btn-verPrestamos::before,
+a.btn-admin::before,
+a.btn-libros::before,
+a.btn-users::before,
+a.btn-menu::before,
+a.btn-perfil::before,
+a.btn-logout::before {
+content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    border-radius: 5px;
+    transform: scaleX(0);
+    transition: all .5s ease;
+    bottom: 0;
+    left: 0;
+}
+
+a.btn-verLibros:hover::before,
+a.btn-verPrestamos:hover::before,
+a.btn-admin:hover::before,
+a.btn-libros:hover::before,
+a.btn-users:hover::before,
+a.btn-menu:hover::before,
+a.btn-perfil:hover::before,
+a.btn-logout:hover::before{
+transform: scaleX(1);
+}      
