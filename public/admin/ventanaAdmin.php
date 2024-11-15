@@ -23,8 +23,8 @@ include '../../templates/a.php';
 </head>
 <body>
     <div class="container">
-        <h1>Bienvenido Admin</h1><br>
-        <h2>Selecciona en la barra Superior a donde quieras ir :)</h2>
+        <h1 clas="fade-in">Bienvenido Admin </h1><br>
+        <h2 class="fade-in<">Selecciona en la barra Superior a donde quieras ir :) </h2>
     </div>
 </body>
 </html>

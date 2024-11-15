@@ -31,6 +31,7 @@
     </nav>
 
     <style>
+        
         .barra-superior {
     font-family: 'Quicksand';
     width: 97.6%;

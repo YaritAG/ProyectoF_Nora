@@ -23,7 +23,9 @@ body{
 /   Sección de la navbar
 / ---------------------------------------- */
 
+/* Estilos de la Barra Superior */
 .barra-superior {
+    font-family: 'Quicksand';
     width: 97.6%;
     background-color: #030504;
     color: #fff;
@@ -35,9 +37,15 @@ body{
     position: sticky;
     padding: 10px 20px;
     z-index: 10;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(3px);
+    border-radius: 5px;
+    box-shadow: 0 5px 30px 0 rgba(22, 32, 220, 0.37);
+    padding-right: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-
+/* Botones en la Barra Superior */
 .btn-prestamo,
 .btn-generos,
 .btn-about,
@@ -45,13 +53,13 @@ body{
 .btn-admin,
 .btn-logout,
 .btn-perfil,
-.btn-menu{
+.btn-menu {
     margin-right: 20px;
     border-radius: 5px;
     padding: 6px 10px;
-    border: 1px solid #fff;
 }
 
+/* Enlaces dentro de los Botones en la Barra Superior */
 a.btn-prestamo,
 a.btn-generos,
 a.btn-about,
@@ -59,10 +67,45 @@ a.btn-libros,
 a.btn-admin,
 a.btn-logout,
 a.btn-perfil,
-a.btn-menu{
+a.btn-menu {
     text-decoration: none;
     color: inherit;
-    /* Mantiene el color del enlace como el color de su contenedor o página */
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+/* Efecto Hover para los Enlaces en la Barra Superior */
+a.btn-prestamo::before,
+a.btn-generos::before,
+a.btn-about::before,
+a.btn-libros::before,
+a.btn-admin::before,
+a.btn-logout::before,
+a.btn-perfil::before,
+a.btn-menu::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    border-radius: 5px;
+    transform: scaleX(0);
+    transition: all 0.5s ease;
+    bottom: 0;
+    left: 0;
+}
+
+a.btn-prestamo:hover::before,
+a.btn-generos:hover::before,
+a.btn-about:hover::before,
+a.btn-libros:hover::before,
+a.btn-admin:hover::before,
+a.btn-logout:hover::before,
+a.btn-perfil:hover::before,
+a.btn-menu:hover::before {
+    transform: scaleX(1);
+    /* Expande la línea de subrayado en hover */
 }
 /* -------------------------------------
 / Contnedor General

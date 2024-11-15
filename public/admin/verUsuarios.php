@@ -11,49 +11,92 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 }
 
 require 'db.php'; // Incluye el archivo de conexión a la base de datos
-
 $conn = getConexion();
 
-// ------------------------------------------------------------------------
-//  Actualizar Datos
-// ------------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// Buscar Datos
+// -----------------------------------------------------------------------
+$query = isset($_GET['query']) ? $_GET['query'] : '';
 
-// Verifica si se ha enviado el formulario
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'];
+// Construye la consulta SQL base
+$sql = "SELECT id_Personas AS id, Nombre AS nombre, Apellido AS apellido, Correo AS correo, Password AS password, Rol AS rol FROM tpersonas";
 
-    if ($_POST['accion'] === 'actualizar') {
-        // Procesar la actualización del registro
-        $nombre = $_POST['nombre'];
-        $apellido = $_POST['apellido'];
-        $correo = $_POST['correo'];
-        $password = $_POST['password'];
-        $rol = $_POST['rol'];
-
-        $sql = "UPDATE tpersonas SET Nombre = :nombre, Apellido = :apellido, Correo = :correo, Password = :password, Rol = :rol WHERE id_Personas = :id";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':nombre', $nombre);
-        $stmt->bindParam(':apellido', $apellido);
-        $stmt->bindParam(':correo', $correo);
-        $stmt->bindParam(':password', $password);
-        $stmt->bindParam(':rol', $rol);
-        $stmt->bindParam(':id', $id);
-
-        if ($stmt->execute()) {
-            echo "Registro actualizado con éxito";
-        } else {
-            echo "Error al actualizar el registro";
-        }
-
-        // Redirige de vuelta a la misma página para ver los cambios
-        header('Location: verUsuarios.php');
-        exit;
-    }
+// Si hay un término de búsqueda, añade una cláusula WHERE
+if (!empty($query)) {
+    $sql .= " WHERE 
+              id_Personas LIKE :query OR
+              Nombre LIKE :query OR
+              Apellido LIKE :query OR
+              Correo LIKE :query OR
+              Rol LIKE :query";
 }
 
-// Consulta para obtener los datos de los usuarios
-$sql = "SELECT id_Personas AS id, Nombre AS nombre, Apellido AS apellido, Correo AS correo, Password AS password, rol FROM tpersonas";
-$stmt = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+
+// Agrega el término de búsqueda con comodines si está definido
+if (!empty($query)) {
+    $stmt->bindValue(':query', '%' . $query . '%');
+}
+
+// Ejecuta la consulta y maneja errores de depuración
+try {
+    $stmt->execute();
+} catch (PDOException $e) {
+    echo "Error en la consulta: " . $e->getMessage();
+    exit();
+}
+
+// Muestra los resultados obtenidos en la búsqueda en el HTML
+
+// -----------------------------------------------------------------------
+// Eliminar Datos
+// -----------------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
+    $id = $_POST['id'];
+    $sql = "DELETE FROM tpersonas WHERE id_Personas = :id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':id', $id);
+
+    if ($stmt->execute()) {
+        echo "Registro eliminado con éxito";
+    } else {
+        echo "Error al eliminar el registro";
+    }
+    // Redirige de vuelta a la misma página para ver los cambios
+    header('Location: verUsuarios.php');
+    exit;
+}
+
+// ------------------------------------------------------------------------
+// Actualizar Datos
+// ------------------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'actualizar') {
+    $id = $_POST['id'];
+    $nombre = $_POST['nombre'];
+    $apellido = $_POST['apellido'];
+    $correo = $_POST['correo'];
+    $password = $_POST['password'];
+    $rol = $_POST['rol'];
+
+    $sql = "UPDATE tpersonas SET Nombre = :nombre, Apellido = :apellido, Correo = :correo, Password = :password, Rol = :rol WHERE id_Personas = :id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':nombre', $nombre);
+    $stmt->bindParam(':apellido', $apellido);
+    $stmt->bindParam(':correo', $correo);
+    $stmt->bindParam(':password', $password);
+    $stmt->bindParam(':rol', $rol);
+    $stmt->bindParam(':id', $id);
+
+    if ($stmt->execute()) {
+        echo "Registro actualizado con éxito";
+    } else {
+        echo "Error al actualizar el registro";
+    }
+
+    // Redirige de vuelta a la misma página para ver los cambios
+    header('Location: verUsuarios.php');
+    exit;
+}
 ?>
 
 <?php include '../../templates/a.php'; ?>
@@ -73,9 +116,13 @@ $stmt = $conn->query($sql);
         <h1>Tabla de Usuarios</h1>
 
         <div class="seccion-tabla">
+
+            <!-- Buscador con método GET para obtener datos -->
             <div class="seccion-buscador">
-                <input type="search" class="buscador" placeholder="Buscar..." name="query" aria-label="Buscar">
-                <button type="submit"><i class="fas fa-search"></i></button>
+                <form method="GET" action="verUsuarios.php">
+                    <input type="text" class="buscador" placeholder="Buscar..." name="query" aria-label="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
             </div>
 
             <div class="inputs">
@@ -138,28 +185,28 @@ $stmt = $conn->query($sql);
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                       <tbody>
                         <?php
-                            // Generar las filas de la tabla con los datos de los usuarios
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<tr>";
-                                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['apellido']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['correo']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['password']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['rol']) . "</td>";
-                                echo "<td>
-                                    <form method='POST' action='verUsuarios.php' style='display:inline;'>
-                                        <input type='hidden' name='id' value='" . $row['id'] . "'>
-                                        <button type='submit' name='accion' value='eliminar' class='btn-borrar'>Borrar</button>
-                                    </form>
-                                    <button type='button' class='btn-editar' onclick='editarUsuario(" . $row['id'] . ", \"" . htmlspecialchars($row['nombre']) . "\", \"" . htmlspecialchars($row['apellido']) . "\", \"" . htmlspecialchars($row['correo']) . "\", \"" . htmlspecialchars($row['password']) . "\", \"" . htmlspecialchars($row['rol']) . "\")'>Editar</button>
-                                </td>";
-                                echo "</tr>";
-                            }
-                            ?>
-                        </tbody>
+                        // Recorre los resultados y crea una fila para cada usuario
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['apellido']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['correo']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['password']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['rol']) . "</td>";
+                            echo "<td>
+                                        <form method='POST' action='verUsuarios.php' style='display:inline;'>
+                                            <input type='hidden' name='id' value='" . $row['id'] . "'>
+                                            <button type='submit' name='accion' value='eliminar' class='btn-borrar'>Borrar</button>
+                                        </form>
+                                        <button type='button' class='btn-editar' onclick='editarUsuario(" . $row['id'] . ", `" . htmlspecialchars($row['nombre']) . "`, `" . htmlspecialchars($row['apellido']) . "`, `" . htmlspecialchars($row['correo']) . "`, `" . htmlspecialchars($row['password']) . "`, `" . htmlspecialchars($row['rol']) . "`)'>Editar</button>
+                                    </td>";
+                            echo "</tr>";
+                        }
+                        ?>
+                    </tbody>
                     </table>
                 </div>
             </div>
@@ -168,14 +215,14 @@ $stmt = $conn->query($sql);
 
     <script>
         function editarUsuario(id, nombre, apellido, correo, password, rol) {
-                // Cargar los datos en los inputs del formulario
-                document.getElementById('id').value = id;
-                document.getElementById('nombre').value = nombre;
-                document.getElementById('apellido').value = apellido;
-                document.getElementById('correo').value = correo;
-                document.getElementById('password').value = password;
-                document.getElementById('rol').value = rol;
-            }
+            // Cargar los datos en los inputs del formulario
+            document.getElementById('id').value = id;
+            document.getElementById('nombre').value = nombre;
+            document.getElementById('apellido').value = apellido;
+            document.getElementById('correo').value = correo;
+            document.getElementById('password').value = password;
+            document.getElementById('rol').value = rol;
+        }
     </script>
 </body>
 

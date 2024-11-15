@@ -324,7 +324,7 @@ session_start();
                 <section class="info">
                     <div class="seccion">
                         <h1 class="titulo-secciones fade-in" id="tittle-info">¿Por qué es importante leer?</h1>
-                        <p class="txt-secciones" id="txt-info1">
+                        <p class="txt-secciones fade-in" id="txt-info1">
                             Leer es una actividad enriquecedora y transformadora que va mucho más allá de una simple distracción. A través de la
                             lectura, las personas no solo adquieren conocimientos, sino que también desarrollan habilidades cruciales para su vida
                             cotidiana y profesional.

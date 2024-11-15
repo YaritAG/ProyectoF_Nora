@@ -43,7 +43,24 @@ h1 {
     border-radius: 5px;
     border: 1px solid #000;
     margin-right: 20px;
-    padding: 5px 10px;
+    padding: 4px 10px;
+}
+
+/* Estilos para el botón de búsqueda */
+.fas {
+    padding: 5px 20px;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Efecto Hover para el botón */
+.fas:hover {
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
 }
 
 /* ---------------------------------------------
@@ -112,14 +129,42 @@ h3 {
     cursor: pointer;
 }
 
+/* Botón Guardar */
 .btn-save {
     background-color: #4CAF50;
     color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+/* Hover para Botón Guardar */
+.btn-save:hover {
+    background-color: #388E3C;
+    /* Cambia a un tono más oscuro */
+    transform: scale(1.05);
+    /* Agranda ligeramente el botón */
+}
+
+/* Botón Cancelar */
 .btn-cancel {
     background-color: #f44336;
     color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover para Botón Cancelar */
+.btn-cancel:hover {
+    background-color: #d32f2f;
+    /* Cambia a un tono más oscuro */
+    transform: scale(1.05);
+    /* Agranda ligeramente el botón */
 }
 
 /* ---------------------------------------------
@@ -186,15 +231,43 @@ table tr:hover {
     background-color: #f9f9f9;
 }
 
+/* Estilos generales para los botones */
 .btn-editar,
 .btn-borrar {
     border-radius: 10px;
     padding: 10px 20px;
     border: 1px solid #000;
+    cursor: pointer;
+    /* Hace que el cursor cambie a una mano al pasar por encima */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    /* Transición suave para hover */
 }
 
-.btn-borrar{
+/* Botón Borrar */
+.btn-borrar {
     background-color: #f44336;
     color: #fff;
+}
+
+/* Hover para Botón Borrar */
+.btn-borrar:hover {
+    background-color: #d32f2f;
+    /* Cambia a un tono más oscuro */
+    transform: scale(1.05);
+    /* Agranda ligeramente el botón */
+}
+
+/* Botón Editar */
+.btn-editar {
     margin-top: 10px;
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+/* Hover para Botón Editar */
+.btn-editar:hover {
+    background-color: #388E3C;
+    /* Cambia a un tono más oscuro */
+    transform: scale(1.05);
+    /* Agranda ligeramente el botón */
 }
