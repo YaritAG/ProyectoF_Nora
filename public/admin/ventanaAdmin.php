@@ -13,14 +13,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 
 include '../../templates/a.php'; 
 ?>
+<!DOCTYPE html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Usuarios </title>
     <link rel="stylesheet" href="static/admin.css?ver=<?php echo time(); ?>">
 </head>
+<body>
     <div class="container">
-        <h1>Bienvenido admin</h1>
-        <!-- Aquí puedes agregar más contenido exclusivo para el administrador -->
+        <h1>Bienvenido Admin</h1><br>
+        <h2>Selecciona en la barra Superior a donde quieras ir :)</h2>
     </div>
-
 </body>
-
 </html>

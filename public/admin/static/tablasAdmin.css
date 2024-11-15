@@ -8,13 +8,11 @@ body {
     margin: 50px 40px;
     background-color: #24302A;
     border-radius: 15px;
-    padding: 20px 90px;
+    padding: 20px 0px;
     display: flex;
     flex-direction: column;
     /* Cambia la dirección a columna */
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+
     height: 100vh;
     /* Asegura que ocupe toda la altura de la pantalla */
 }
@@ -22,13 +20,6 @@ body {
 h1 {
     font-weight: 400;
     font-size: 50px;
-    margin: 0;
-    /* Elimina el margen para ajustar el espaciado */
-}
-
-h2 {
-    font-weight: 200;
-    font-size: 35px;
-    margin-top: 20px;
-    /* Ajusta el espaciado entre h1 y h2 */
+    width: auto;
+    text-align: center;
 }
