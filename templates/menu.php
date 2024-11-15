@@ -28,6 +28,7 @@ session_start();
                         <a href="../public/user/prestamos.php" class="btn-prestamo">Realizar Prestamo</a>
                         <a href="../public/user/generos.php" class="btn-generos">Géneros</a>
                         <a href="about.html" class="btn-about">Acerca de</a>
+                        <a href="menu.php" class="btn-menu">Menú</a>
                         <a href="../public/user/libros.php" class="btn-libros">Libros</a>
                         
                         <?php if ($_SESSION['user_role'] === 'admin'): ?>
@@ -44,7 +45,7 @@ session_start();
             <!-- Sección donde se encuentra el contenido -->
             <div class="seccion-principal">
                 <!-- seccion del titulo -->
-                <section class="texto-cabecera">
+                <section class="texto-cabecera fade-in">
                     <!-- Titulo y textos -->
                     <h1 class="titulo1">¡Bienvenido a MyBiblio!</h1>
                     <p class="txt1">
@@ -54,7 +55,7 @@ session_start();
                 </section>
 
                 <!-- Sección de los géneros -->
-                <section class="roll-generos">
+                <section class="roll-generos fade-in">
                     <div class="text-container">
                         <h1 class="titulo-secciones"><a href="../public/user/generos.php" class="link-generos">Géneros</a><span class="span-rojo"> más leídos</span> de nuestro portal</h1>
                         <p class="txt-secciones">
@@ -66,7 +67,7 @@ session_start();
                     </div>
                 
                     <!-- Galería de géneros -->
-                    <div class="gallery">
+                    <div class="gallery fade-in">
                         <!-- Género Fantasía -->
                         <div class="sec-genero-libro">
                             <a href="/generos/fantasia.html" class="link-genero">
@@ -173,7 +174,7 @@ session_start();
                 <!----------------------------------->
                 <!-- Sección de Libros más famosos -->
                 <!----------------------------------->
-                <section class="roll-librostop">
+                <section class="roll-librostop fade-in">
                     <div class="text-container">
                         <h1 class="titulo-secciones">Libros<span class="span-rojo"> más leídos</span> de la semana</h1>
                         <p class="txt-secciones">
@@ -185,7 +186,7 @@ session_start();
                     </div>
 
                     <!-- Libro de Mago de OZ -->
-                    <div class="gallery">
+                    <div class="gallery fade-in">
                         <div class="seccion-libro">
                             <img src="../assets/imgs/menu/magodeoz.jpg" alt="Portada" class="foto-portada">
                             <div class="card">
@@ -322,39 +323,62 @@ session_start();
 
                 <section class="info">
                     <div class="seccion">
-                        <h1 class="titulo-secciones" id="tittle-info">¿Por qué es importante leer?</h1>
+                        <h1 class="titulo-secciones fade-in" id="tittle-info">¿Por qué es importante leer?</h1>
                         <p class="txt-secciones" id="txt-info1">
                             Leer es una actividad enriquecedora y transformadora que va mucho más allá de una simple distracción. A través de la
                             lectura, las personas no solo adquieren conocimientos, sino que también desarrollan habilidades cruciales para su vida
                             cotidiana y profesional.
                         </p><br>
-                        <p class="txt-secciones" id="txt-info2">
+                        <p class="txt-secciones fade-in" id="txt-info2">
                             Beneficios de la Lectura: 
                             <ul class="txt-secciones">
-                                <br><li><b>Expande el Conocimiento:</b> Cada libro es una fuente de información que puede ampliar nuestra comprensión sobre temas
+                                <br><li class="li-1 fade-in"><b>Expande el Conocimiento:</b> Cada libro es una fuente de información que puede ampliar nuestra comprensión sobre temas
                                 específicos y enseñarnos sobre culturas, ciencias, historia, y mucho más.
-                                </li>
+                                <img src="" alt="" class="img-li-1"></li><br>
 
-                                <li><b>Mejora la Concentración y la Memoria:</b> Leer con frecuencia ayuda a mantener la mente activa, fortaleciendo la memoria y
+                                <li class="li-2 fade-in"><b>Mejora la Concentración y la Memoria:</b> Leer con frecuencia ayuda a mantener la mente activa, fortaleciendo la memoria y
                                 la concentración, dos habilidades fundamentales en la era digital.
-                                </li>
+                                <img src="" alt="" class="img-li-2"></li><br>
 
-                                <li><b>Desarrolla el Vocabulario y la Expresión:</b> Al leer, encontramos palabras y expresiones nuevas que enriquecen nuestro
+                                <li class="li-1 fade-in"><b>Desarrolla el Vocabulario y la Expresión:</b> Al leer, encontramos palabras y expresiones nuevas que enriquecen nuestro
                                 vocabulario, ayudándonos a expresar ideas y pensamientos de manera más clara y efectiva.
-                                </li>
+                                <img src="" alt="" class="img-li-1"></li><br>
 
-                                <li><b>Estimula la Imaginación y Creatividad:</b> La lectura permite crear mundos en nuestra mente, lo que fomenta la creatividad y
+                                <li class="li-2 fade-in"><b>Estimula la Imaginación y Creatividad:</b> La lectura permite crear mundos en nuestra mente, lo que fomenta la creatividad y
                                 ayuda a encontrar inspiración.
-                                </li>
+                                <img src="" alt="" class="img-li-2"></li><br>
 
-                                <li><b>Reduce el Estrés:</b> Sumergirse en una buena historia ayuda a desconectar de las preocupaciones diarias, promoviendo la
+                                <li class="li-1 fade-in"><b>Reduce el Estrés:</b> Sumergirse en una buena historia ayuda a desconectar de las preocupaciones diarias, promoviendo la
                                 relajación y el bienestar emocional.
-                                </li>
+                                <img src="" alt="" class="img-li1"></li>
                             </ul>                        
                         </p>
                     </div>
                 </section>
             </div>
-        </div>    
+        </div>
+        <script>
+        // Seleccionamos todas las secciones a las que queremos aplicar el efecto
+        const sections = document.querySelectorAll('.fade-in');
+
+        // Configuramos el IntersectionObserver para activar o desactivar el efecto
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible'); // Añade la clase cuando entra en la vista
+                } else {
+                    entry.target.classList.remove('visible'); // Elimina la clase cuando sale de la vista
+                }
+            });
+        }, {
+            threshold: 0.1 // Configuración para activar el efecto cuando el 10% de la sección esté en la vista
+        });
+
+        // Observamos cada sección
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+
     </body>
 </html>

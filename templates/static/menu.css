@@ -5,7 +5,22 @@ body{
 }
 
 /* ----------------------------------------
-/
+/   Efecto de Desvanecimiento
+/ ---------------------------------------- */
+/* Efecto de entrada */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ----------------------------------------
+/   Sección de la navbar
 / ---------------------------------------- */
 
 .barra-superior {
@@ -29,7 +44,8 @@ body{
 .btn-libros,
 .btn-admin,
 .btn-logout,
-.btn-perfil{
+.btn-perfil,
+.btn-menu{
     margin-right: 20px;
     border-radius: 5px;
     padding: 6px 10px;
@@ -42,7 +58,8 @@ a.btn-about,
 a.btn-libros,
 a.btn-admin,
 a.btn-logout,
-a.btn-perfil {
+a.btn-perfil,
+a.btn-menu{
     text-decoration: none;
     color: inherit;
     /* Mantiene el color del enlace como el color de su contenedor o página */
@@ -74,7 +91,7 @@ a.btn-perfil {
 }
 
 .titulo1{
-    margin-top: 500px;
+    margin-top: 200px;
     font-size: 50px;
     font-weight: 300;
     width: 100%;
@@ -379,4 +396,25 @@ a.link-generos {
 / ------------------------------------- */
 .info {
     margin-top: 500px;
+}
+
+.tittle-info {
+    font-weight: 400;
+}
+
+#txt-info2{
+    font-size: 40px;
+    margin-top: 500px;
+    margin-bottom: 500px;
+}
+
+.li-1 {
+    width: 450px;
+    margin-bottom: 500px;
+}
+
+.li-2 {
+    width: 480px;
+    margin-bottom: 500px;
+    margin-left: 500px;
 }
