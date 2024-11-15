@@ -7,7 +7,7 @@ session_start();
 <head>
         <meta charset="UTF-8">
         <title>Incio | MiBiblio</title>
-        <link rel="stylesheet" href="static/menu.css">
+        <link rel="stylesheet" href="static/menu.css?ver=<?php echo time(); ?>">
 
         <!-- Quicksand -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

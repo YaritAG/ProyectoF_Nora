@@ -1,7 +1,7 @@
 body{
-    background-color: #24302A;
+    background-color: #fff;
     font-family: 'Quicksand';
-    color: #000;
+    color: #fff;
 }
 
 /* ----------------------------------------
@@ -19,8 +19,9 @@ body{
     height: 40px;
     position: sticky;
     padding: 10px 20px;
-
+    z-index: 10;
 }
+
 
 .btn-prestamo,
 .btn-generos,
@@ -30,7 +31,7 @@ body{
 .btn-logout,
 .btn-perfil{
     margin-right: 20px;
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 6px 10px;
     border: 1px solid #fff;
 }
@@ -67,7 +68,7 @@ a.btn-perfil {
 
 .seccion-principal {
     margin: 50px 40px;
-    background-color: #fff;
+    background-color: #24302A;;
     border-radius: 15px;
     padding: 20px 90px;
 }
@@ -82,14 +83,14 @@ a.btn-perfil {
 
 .txt1{
     margin-top: 50px;
-    font-size: 30px;
+    font-size: 22px;
     font-weight: 300;
     width: 100%;
     text-align: center;
 }
 
 /* ----------------------------------------------
-/ Secciónnde los generos
+/ Sección del carrete de generos
 / -------------------------------------------- */
 a.link-generos {
     text-decoration: none;
@@ -114,7 +115,7 @@ a.link-generos {
 
 .txt-secciones {
     margin-top: 50px;
-    font-size: 30px;
+    font-size: 23px;
     font-weight: 300;
     width: 100%;
     text-align: center;
@@ -124,159 +125,258 @@ a.link-generos {
     display: flex;          /* Hace que los hijos se alineen horizontalmente */
     flex-wrap: nowrap;      /* Evita que los elementos se envuelvan a una nueva línea */
     gap: 20px;              /* Añade espacio entre cada sección */
-    overflow-x: auto;    
+    overflow-x: auto; 
+    padding: 10px 20px;  
+    z-index: -1;
 }
 
-.sec-genero.libro {
+.sec-genero-libro {
+    margin-top: 30px;
     border-radius: 15px;
     width: 400px;
     height: 400px;
-    border: 2px solid #000;
 }
 
 .img-genero{
     border-radius: 15px;
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: 300px;
 }
 
 /* ----------------------------------------
 / Estilo 3D de las Cards
 / ---------------------------------------- */
 
-.container-cards {
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    -webkit-perspective: 1000px;
-    perspective: 1000px;
+        .container-cards {
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
+        }
+
+        .frente,
+        .detras {
+            background-size: cover;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            background-position: center;
+            -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            text-align: center;
+            min-height: 280px;
+            box-shadow: 0 0 10px solid blue;
+
+            height: 300px;
+            width: 300px;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1.5rem;
+        }
+
+        .detras {
+            background: #24302A;
+            background: -webkit-linear-gradient(45deg, #040404 0%, #24302A 100%);
+            background: -o-linear-gradient(45deg, #040404 0%, #24302A 100%);
+            background: linear-gradient(45deg, #040404 0%, #24302A 100%);
+        }
+
+        .frente::after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 300px;
+            height: 300px;
+            content: '';
+            display: block;
+            opacity: .6;
+            background-color: #000;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+        }
+
+        .container-cards:hover .frente,
+        .container-cards:hover .detras {
+            -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .detras {
+            font-size: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 300px;
+            width: 300px;
+            background-color: #000;
+        }
+
+        .inner {
+            -webkit-transform: translateY(-50%) translateZ(60px) scale(0.94);
+            transform: translateY(-50%) translateZ(60px) scale(0.94);
+            top: 50%;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            outline: 1px solid transparent;
+            -webkit-perspective: inherit;
+            perspective: inherit;
+            z-index: 2;
+        }
+
+        .container-cards .detras {
+            -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .container-cards .frente {
+            -webkit-transform: rotateY(0deg);
+            transform: rotateY(0deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .container-cards:hover .detras {
+            -webkit-transform: rotateY(0deg);
+            transform: rotateY(0deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .container-cards:hover .frente {
+            -webkit-transform: rotateY(-180deg);
+            transform: rotateY(-180deg);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .frente .inner p {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .frente .inner p::after {
+            content: '';
+            width: 4rem;
+            height: 2px;
+            position: absolute;
+            background: #C6D4DF;
+            display: block;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            bottom: -.75rem;
+        }
+
+
+/* -----------------------------------------------
+/   Libros top
+/ ---------------------------------------------- */
+
+.roll-librostop {
+    margin-top: 500px;
 }
 
-.frente,
-.detras {
-    background-size: cover;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
-    background-position: center;
-    -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    text-align: center;
-    box-shadow: 0 0 10px solid blue;
-
-    height: auto;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 1.5rem;
-}
-
-.detras {
-    background: #cedce7;
-    background: -webkit-linear-gradient(45deg, #cedce7 0%, #596a72 100%);
-    background: -o-linear-gradient(45deg, #cedce7 0%, #596a72 100%);
-    background: linear-gradient(45deg, #cedce7 0%, #596a72 100%);
-}
-
-.frente:after {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    width: 100%;
+.seccion-libro {
+    position: relative; /* Asegura que .card se posicione en relación a .seccion-libro */
     height: 100%;
-    content: '';
-    display: block;
-    opacity: .6;
-    background-color: #000;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border-radius: 10px;
+    margin-right: 20px;
+    z-index: 1; /* z-index bajo en .seccion-libro */
 }
 
-.container-cards:hover .frente,
-.container-cards:hover .detras {
-    -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+.foto-portada {
+    margin-right: 5px;
+    width: 140px;
+    height: 200px;
 }
 
-.detras {
+.card {
+    position: absolute; /* Posiciona .card encima de .seccion-libro */
+    padding: 0; 
+    top: 0;
+    left: 0;
+    width: 100%; /* Coincide con el ancho de .seccion-libro */
+    height: 100%; /* Coincide con la altura de .seccion-libro */
+    overflow: hidden;
+    filter: drop-shadow(10px 10px 20px rgba(0, 0, 0, 0.25));
+    z-index: 2; /* Asegura que .card esté encima de .seccion-libro */
+}
+
+.card::after {
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 140px;
+    height: 200px;
+    background: linear-gradient(180deg,
+                rgba(0, 0, 0, 0.6) 0%,
+                /* Aumenta la opacidad al inicio del gradiente */
+                rgba(0, 0, 0, 0.7) 50%,
+                /* Más oscuro en el medio */
+                rgba(0, 0, 0, 0.9) 100%
+                /* Muy oscuro al final del gradiente */
+            );    background-blend-mode: darken, normal;
 }
 
-.inner {
-    -webkit-transform: translateY(-50%) translateZ(60px) scale(0.94);
-    transform: translateY(-50%) translateZ(60px) scale(0.94);
-    top: 50%;
+.card>.content {
+    color: white;
     position: absolute;
-    left: 0;
-    width: 100%;
-    padding: 2rem;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    outline: 1px solid transparent;
-    -webkit-perspective: inherit;
-    perspective: inherit;
-    z-index: 2;
+    top: 200px;
+    z-index: 10;
+    transition: top 450ms ease-out;
+    padding: 5px 5px;
 }
 
-.container-cards .detras {
-    -webkit-transform: rotateY(180deg);
-    transform: rotateY(180deg);
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
+.card>.content>h1 {
+    font-size: 12px;
 }
 
-.container-cards .frente {
-    -webkit-transform: rotateY(0deg);
-    transform: rotateY(0deg);
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
+.card>.content>p {
+    margin-bottom: 10px;
+    font-size: 10px;
 }
 
-.container-cards:hover .detras {
-    -webkit-transform: rotateY(0deg);
-    transform: rotateY(0deg);
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
+.card:hover>.content {
+    top: 10px;
 }
 
-.container-cards:hover .frente {
-    -webkit-transform: rotateY(-180deg);
-    transform: rotateY(-180deg);
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
+.btn {
+    border: none;
+    padding: 10px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
 }
 
-.frente .inner p {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    position: relative;
+.btn-card {
+    background: #D0EEB0;
+    transition: background 200ms ease;
 }
 
-.frente .inner p:after {
-    content: '';
-    width: 4rem;
-    height: 2px;
-    position: absolute;
-    background: #C6D4DF;
-    display: block;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    bottom: -.75rem;
+.btn-card:hover {
+    background: #bfed8e;
 }
 
-.frente .inner span {
-    color: rgba(255, 255, 255, 0.7);
-    font-family: 'Montserrat';
-    font-weight: 300;
+/* --------------------------------------
+/   Sección del texto de importancia
+/ ------------------------------------- */
+.info {
+    margin-top: 500px;
 }
