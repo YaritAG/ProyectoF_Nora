@@ -73,6 +73,10 @@ h1 {
 / --------------------------------------------- */
 .inputs {
     margin-top: 70px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 20px;
 }
 
 h3 {
@@ -178,7 +182,7 @@ h3 {
 .table-outer-wrapper {
     width: 100%;
     overflow: hidden;
-    margin-top: -250px;
+    margin-top: -0px;
 }
 
 /* Barra de desplazamiento superior */
@@ -274,4 +278,17 @@ table tr:hover {
     /* Cambia a un tono más oscuro */
     transform: scale(1.05);
     /* Agranda ligeramente el botón */
+}
+
+.error {
+    width: auto;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
 }

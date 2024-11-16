@@ -103,6 +103,12 @@ include '../../templates/a.php';
                             <label for="nombre">Año:</label>
                             <input class="input-editor" type="text" id="año" name="año" required><br><br>
                         </div>
+
+                         <!-- Contenedor para los botones -->
+                        <div class="buttons">
+                            <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button>
+                            <button class="btn-cancel" type="reset">Cancelar</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -112,17 +118,17 @@ include '../../templates/a.php';
                 <table>
                     <thead>
                         <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Ejemplar</th>
+                            <th>Editorial</th>
+                            <th>Género</th>
+                            <th>Páginas</th>
+                            <th>Año</th>
                         </tr>
                     </thead>
                     <tbody>
-                            
+
                     </tbody>
                 </table>
             </div>

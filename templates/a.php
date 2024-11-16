@@ -22,7 +22,7 @@
             <a href="../../templates/menu.php" class="btn-menu">Menú Principal</a>
             <a href="ventanaAdmin.php" class="btn-admin">Menu de Admin</a>
             <a href="verUsuarios.php" class="btn-users">Ver Usuarios</a>
-            <a href="verAutores.php" class="btn-autores">Ver Autores</a>
+            <a href="verGeneros.php" class="btn-generos">Ver Géneros</a>
         </div>
 
         <div class="logout">
