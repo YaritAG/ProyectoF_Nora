@@ -1,0 +1,52 @@
+body {
+    background-color: #7a7979;
+    font-family: 'Quicksand';
+    color: #fff;
+}
+
+/* Hacer el header sticky */
+header {
+    position: sticky;
+    top: 0;
+    /* Mantenerlo pegado al top */
+    z-index: 1000;
+}
+
+/* ----------------------------------------
+/   Efecto de Desvanecimiento
+/ ---------------------------------------- */
+/* Efecto de entrada */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ----------------------------------------
+/   Efecto de Desvanecimiento
+/ ---------------------------------------*/
+.seccion-principal {
+    margin: 50px 40px;
+    background-color: #24302A;
+    ;
+    border-radius: 15px;
+    padding: 20px 90px;
+}
+
+h1 {
+    font-weight: 400;
+    font-size: 50px;
+    width: auto;
+    text-align: center;
+}
+
+h3 {
+    width: auto;
+    text-align: center;
+    font-weight: 400;
+}

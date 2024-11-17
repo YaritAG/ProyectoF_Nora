@@ -1,0 +1,278 @@
+body {
+    background-color: #7a7979;
+    font-family: 'Quicksand';
+    color: #fff;
+}
+
+/* Hacer el header sticky */
+header {
+    position: sticky;
+    top: 0;
+    /* Mantenerlo pegado al top */
+    z-index: 1000;
+}
+
+/* ----------------------------------------
+/   Efecto de Desvanecimiento
+/ ---------------------------------------- */
+/* Efecto de entrada */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ----------------------------------------
+/   Efecto de Desvanecimiento
+/ ---------------------------------------*/
+.seccion-principal {
+    margin: 50px 40px;
+    background-color: #24302A;
+    ;
+    border-radius: 15px;
+    padding: 20px 90px;
+}
+
+h1 {
+    font-weight: 400;
+    font-size: 50px;
+    width: auto;
+    text-align: center;
+}
+
+h3 {
+    width: auto;
+    text-align: center;
+    font-weight: 400;
+}
+
+.titulo1 {
+    margin-top: 200px;
+    font-size: 50px;
+    font-weight: 300;
+    width: 100%;
+    text-align: center;
+}
+
+.txt1 {
+    margin-top: 50px;
+    font-size: 22px;
+    font-weight: 300;
+    width: 100%;
+    text-align: center;
+}
+
+/* ----------------------------------------------
+/ Sección del carrete de generos
+/ -------------------------------------------- */
+a.link-generos {
+    text-decoration: none;
+    color: inherit;
+    /* Esto hereda el color del elemento contenedor */
+}
+
+.span-rojo {
+    color: red;
+}
+
+.roll-generos {
+    width: 100%;
+    margin-top: 500px;
+}
+
+.titulo-secciones {
+    font-size: 45px;
+    font-weight: 300;
+    text-align: center;
+}
+
+.txt-secciones {
+    margin-top: 50px;
+    font-size: 23px;
+    font-weight: 300;
+    width: 100%;
+    text-align: center;
+}
+
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que los elementos se envuelvan */
+    gap: 20px;
+    /* Espaciado entre las tarjetas */
+    justify-content: center;
+    /* Centra las tarjetas horizontalmente */
+    padding: 10px 20px;
+    /* Espaciado interno */
+    overflow: hidden;
+    /* Oculta el scroll horizontal */
+}
+
+.sec-genero-libro {
+    flex: 1 1 calc(25% - 20px);
+    /* 4 columnas por fila, ajustando el gap */
+    max-width: 300px;
+    /* Limita el ancho máximo */
+    height: auto;
+    /* Permite que la altura se ajuste al contenido */
+    margin-bottom: 20px;
+    /* Espaciado entre filas */
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.img-genero {
+    width: 100%;
+    /* Se ajusta al ancho del contenedor */
+    height: auto;
+    /* Mantiene la proporción */
+    border-radius: 15px;
+}
+/* ----------------------------------------
+/ Estilo 3D de las Cards
+/ ---------------------------------------- */
+
+.container-cards {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+}
+
+.frente,
+.detras {
+    background-size: cover;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    background-position: center;
+    -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    text-align: center;
+    min-height: 280px;
+    box-shadow: 0 0 10px solid blue;
+
+    height: 300px;
+    width: 300px;
+    border-radius: 15px;
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+.detras {
+    background: #24302A;
+    background: -webkit-linear-gradient(45deg, #040404 0%, #24302A 100%);
+    background: -o-linear-gradient(45deg, #040404 0%, #24302A 100%);
+    background: linear-gradient(45deg, #040404 0%, #24302A 100%);
+}
+
+.frente::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 300px;
+    height: 300px;
+    content: '';
+    display: block;
+    opacity: .6;
+    background-color: #000;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 10px;
+}
+
+.container-cards:hover .frente,
+.container-cards:hover .detras {
+    -webkit-transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transition: -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    -o-transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transition: transform .7s cubic-bezier(0.4, 0.2, 0.2, 1), -webkit-transform .7s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.detras {
+    font-size: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 300px;
+    width: 300px;
+    background-color: #000;
+}
+
+.inner {
+    -webkit-transform: translateY(-50%) translateZ(60px) scale(0.94);
+    transform: translateY(-50%) translateZ(60px) scale(0.94);
+    top: 50%;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    padding: 2rem;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    outline: 1px solid transparent;
+    -webkit-perspective: inherit;
+    perspective: inherit;
+    z-index: 2;
+}
+
+.container-cards .detras {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+.container-cards .frente {
+    -webkit-transform: rotateY(0deg);
+    transform: rotateY(0deg);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+.container-cards:hover .detras {
+    -webkit-transform: rotateY(0deg);
+    transform: rotateY(0deg);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+.container-cards:hover .frente {
+    -webkit-transform: rotateY(-180deg);
+    transform: rotateY(-180deg);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+.frente .inner p {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.frente .inner p::after {
+    content: '';
+    width: 4rem;
+    height: 2px;
+    position: absolute;
+    background: #C6D4DF;
+    display: block;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    bottom: -.75rem;
+}
