@@ -1,5 +1,5 @@
 body {
-    background-color: #fff;
+    background-color: #7a7979;
     font-family: 'Quicksand';
     color: #fff;
 }
@@ -31,7 +31,7 @@ h1 {
 /* Sección del buscador 
 / ----------------------------------------------- */
 .seccion-buscador {
-    margin-top: 30px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;    
     width: 100%;
@@ -42,7 +42,7 @@ h1 {
     height: 25px;
     border-radius: 5px;
     border: 1px solid #000;
-    margin-right: 20px;
+    margin-right: 0px;
     padding: 4px 10px;
 }
 
@@ -72,7 +72,7 @@ h1 {
 / Estilo para los inputs
 / --------------------------------------------- */
 .inputs {
-    margin-top: 70px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
     text-align: center;
@@ -95,6 +95,16 @@ h3 {
     grid-column-gap: 0px;
     grid-row-gap: 0px;
 }
+
+textarea .input-editor {
+    width: 400px;
+    font-family: 'Quicksand';
+}
+
+label #labeldesc {
+    margin-right: 10px;
+}
+
 .input-editor {
     border-radius: 5px;
     border: 1px solid #24302A;
@@ -111,6 +121,10 @@ h3 {
 
 .seccion-3 {
     grid-area: 1 / 5 / 2 / 7;
+}
+
+#descripcion {
+    margin-top: 10px;
 }
 
 /* Estilos para el contenedor de botones */
@@ -182,7 +196,7 @@ h3 {
 .table-outer-wrapper {
     width: 100%;
     overflow: hidden;
-    margin-top: -0px;
+    margin-top: -240px;
     
 }
 

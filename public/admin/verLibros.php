@@ -138,12 +138,6 @@ $stmtAutores = $conn->prepare($queryAutores);
 $stmtAutores->execute();
 $autores = $stmtAutores->fetchAll(PDO::FETCH_ASSOC);
 
-// Validación de datos salientes
-echo '<pre>';
-print_r($libros);
-echo '</pre>';
-
-
 // Incluir el archivo a.php
 include '../../templates/a.php';
 ?>
@@ -162,136 +156,163 @@ include '../../templates/a.php';
     <div class="container">
         <h1>Tabla de Libros</h1>
 
-        <!-- Formulario para agregar o editar un libro -->
-        <div class="inputs">
-        <div class="editors">
-        <h3>Editar o Agregar Libro</h3>
-        <form id="editor-form" action="verLibros.php" method="POST">
-            <!-- Campo oculto para almacenar el ID en caso de edición -->
-            <input type="hidden" id="id" name="id" value="<?= $libroEdit['id_Libro'] ?? '' ?>">   
-        
-                    <div class="seccion-1">
-                        <label for="nombre">Nombre:</label>
-                        <input class="input-editor" type="text" id="nombre" name="nombre"
-                            value="<?= htmlspecialchars($libroEdit['Nombre'] ?? '') ?>" required><br><br>
-        
-                        <label for="ejemplar">Ejemplares:</label>
-                        <input class="input-editor" type="number" id="ejemplar" name="ejemplar"
-                            value="<?= htmlspecialchars($libroEdit['Ejemplar'] ?? '') ?>" required><br><br>
-                                                
-                        <label for="año">Año:</label>
-                        <select class="input-editor" id="año" name="año" required>
-                            <option value="">Selecciona un año</option>
-                            <?php foreach ($anios as $año): ?>
-                                                        <option value="<?= $año ?>" <?= isset($libroEdit['Año']) && $libroEdit['Año'] == $año ? 'selected' : '' ?>>
-                                                            <?= $año ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select><br><br>
-                    </div>
-        
-                    <div class="seccion-2">
-                        <label for="editorial">Editorial:</label>
-                        <input class="input-editor" type="text" id="editorial" name="editorial"
-                            value="<?= htmlspecialchars($libroEdit['Editorial'] ?? '') ?>" required><br><br>
-        
-                        <label for="genero">Género:</label>
-                        <input class="input-editor" type="text" id="genero" name="genero"
-                            value="<?= htmlspecialchars($libroEdit['Genero'] ?? '') ?>" required><br><br>
-                                               <label for="paginas">Páginas:</label>
-                        
-                            <input class="input-editor" type="number" id="paginas" name="paginas"
-                            value="<?= htmlspecialchars($libroEdit['Paginas'] ?? '') ?>" required><br><br>
-        
-                    </div>
-        
-                    <div class="seccion-3">
-    <label for="autor">Autor Principal:</label>
-    <select class="input-editor" id="autor" name="autor[]" required>
-        <option value="">Selecciona un autor</option>
-        <?php foreach ($autores as $autor): ?>
-                                <option value="<?= $autor['id_Autor'] ?>" <?= isset($libroEdit['autores']) && in_array($autor['id_Autor'], explode(',', $libroEdit['autores'])) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($autor['Nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select><br><br>
+        <div class="seccion-tabla">
+                      
+            <!-- Buscador con método GET para obtener datos -->    
+            <div class="seccion-buscador">
+                <form method="GET" action="verUsuarios.php">
+                    <input type="text" class="buscador" placeholder="Buscar..." name="query" aria-label="Buscar">
+                    <button class="lupa" type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <!-- Formulario para agregar o editar un libro -->
+            <div class="inputs">
+
+                <div class="editors">
+
+                    <h3>Editar o Agregar Libro</h3>
+
+                    <!-- Form para ingresar los datos -->
+                    <form id="editor-form" action="verLibros.php" method="POST">
                     
-                        <label>
-                            <input type="checkbox" id="mas_autores" name="mas_autores" onchange="toggleSegundoAutor()"> Libro con más
-                            autores
-                        </label><br><br>
+                    <!-- Campo oculto para almacenar el ID en caso de edición -->
+                    <input type="hidden" id="id" name="id" value="<?= $libroEdit['id_Libro'] ?? '' ?>">   
                     
-                        <div id="segundo_autor" style="display: none;">
-                            <label for="autor_extra">Autor Secundario:</label>
-                            <select class="input-editor" id="autor_extra" name="autor[]">
-                                <option value="">Selecciona un autor</option>
-                                <?php foreach ($autores as $autor): ?>
-                                    <option value="<?= $autor['id_Autor'] ?>"><?= htmlspecialchars($autor['Nombre']) ?></option>
+                        <div class="seccion-1">
+
+                            <!-- Nombre del Libro -->
+                            <label for="nombre">Nombre:</label>
+                            <input class="input-editor" type="text" id="nombre" name="nombre"
+                                value="<?= htmlspecialchars($libroEdit['Nombre'] ?? '') ?>" required><br><br>
+                    
+                            <!-- Cantidad de Ejemplares -->
+                            <label for="ejemplar">Ejemplares:</label>
+                            <input class="input-editor" type="number" id="ejemplar" name="ejemplar"
+                                value="<?= htmlspecialchars($libroEdit['Ejemplar'] ?? '') ?>" required><br><br>
+                                        
+                            <!-- Ingreso del año por medio del select y obtiene la condición -->
+                            <label for="año">Año:</label>
+                            <select class="input-editor" id="año" name="año" required>
+                                <option value="">Selecciona un año</option>
+                                <?php foreach ($anios as $año): ?>
+                                    <option value="<?= $año ?>" <?= isset($libroEdit['Año']) && $libroEdit['Año'] == $año ? 'selected' : '' ?>>
+                                        <?= $año ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select><br><br>
                         </div>
-                    </div>
-        
-                    <!-- Botones -->
-                    <div class="buttons">
-                        <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button>
-                        <button class="btn-cancel" type="reset">Cancelar</button>
-                    </div>
-                </form>
+                    
+                        <div class="seccion-2">
+
+                            <!-- Ingresar el Editoria -->
+                            <label for="editorial">Editorial:</label>
+                            <input class="input-editor" type="text" id="editorial" name="editorial"
+                                value="<?= htmlspecialchars($libroEdit['Editorial'] ?? '') ?>" required><br><br>
+                            
+                            <!-- Ingresar el Género -->
+                            <label for="genero">Género:</label>
+                            <input class="input-editor" type="text" id="genero" name="genero"
+                                value="<?= htmlspecialchars($libroEdit['Genero'] ?? '') ?>" required><br><br>
+                            
+                            <!-- Ingresar el numero de páginas del libro -->
+                            <label for="paginas">Páginas:</label>     
+                            <input class="input-editor" type="number" id="paginas" name="paginas"
+                                value="<?= htmlspecialchars($libroEdit['Paginas'] ?? '') ?>" required><br><br>
+                        </div>
+                    
+                        <div class="seccion-3">
+                                
+                            <!-- Autor Principal -->
+                            <label for="autor">Autor Principal:</label>
+                            <select class="input-editor" id="autor" name="autor[]" required>
+                                <option value="">Selecciona un autor</option>
+                                <?php foreach ($autores as $autor): ?>
+                                    <option value="<?= $autor['id_Autor'] ?>" <?= isset($libroEdit['autores']) && in_array($autor['id_Autor'], explode(',', $libroEdit['autores'])) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($autor['Nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select><br><br>
+                                    
+                            <!-- Checbox para validar si hay mas autores -->
+                            <label>
+                                <input type="checkbox" id="mas_autores" name="mas_autores" onchange="toggleSegundoAutor()"> Libro con más
+                                autores
+                            </label><br><br>
+                                
+                            <!-- Input para el segundo autor -->
+                            <div id="segundo_autor" style="display: none;">
+                                <label for="autor_extra">Autor Secundario:</label>
+                                <select class="input-editor" id="autor_extra" name="autor[]">
+                                    <option value="">Selecciona un autor</option>
+                                    <?php foreach ($autores as $autor): ?>
+                                        <option value="<?= $autor['id_Autor'] ?>"><?= htmlspecialchars($autor['Nombre']) ?></option>
+                                    <?php endforeach; ?>
+                                </select><br><br>
+                            </div>
+                        </div>
+                    
+                        <!-- Botones -->
+                        <div class="buttons">
+                            <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button>
+                            <button class="btn-cancel" type="reset">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-                                    
-                                    
-       <script>
-            // Muestra/oculta el segundo autor
-            function toggleSegundoAutor() {
-                const checkbox = document.getElementById('mas_autores');
-                const segundoAutor = document.getElementById('segundo_autor');
-                segundoAutor.style.display = checkbox.checked ? 'block' : 'none';
-            }
-        </script>
-        
-        <!-- Tabla de libros -->
-        <div class="table-wrapper">
-           <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Ejemplares</th>
-                        <th>Editorial</th>
-                        <th>Género</th>
-                        <th>Páginas</th>
-                        <th>Año</th>
-                        <th>Autores</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                        <?php foreach ($libros as $libro): ?>
-                                    <tr>
-                            <td><?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?></td>
-                            <td><?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
-                            <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
-                            <td><?= htmlspecialchars($libro['editorial'] ?? 'Sin Editorial') ?></td>
-                            <td><?= htmlspecialchars($libro['genero'] ?? 'Sin Género') ?></td>
-                            <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
-                            <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
-                            <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
-                            <td>
-                                <form action="verLibros.php" method="POST" style="display: inline;">
-                                    <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id'] ?? '') ?>">
-                                    <button type="submit" name="accion" value="editar">Editar</button>
-                                </form>
-                                <form action="verLibros.php" method="POST" style="display: inline;">
-                                    <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id'] ?? '') ?>">
-                                    <button type="submit" name="accion" value="borrar">Borrar</button>
-                                </form>
-                            </td>
+            
+            <!-- script para aparecer la sección del segundo Autor -->
+            <script>
+                // Muestra/oculta el segundo autor
+                function toggleSegundoAutor() {
+                    const checkbox = document.getElementById('mas_autores');
+                    const segundoAutor = document.getElementById('segundo_autor');
+                    segundoAutor.style.display = checkbox.checked ? 'block' : 'none';
+                }
+            </script>
+            
+            <!-- Tabla de libros -->
+            <div class="table-wrapper" id="tabla-libros">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Ejemplares</th>
+                            <th>Editorial</th>
+                            <th>Género</th>
+                            <th>Páginas</th>
+                            <th>Año</th>
+                            <th>Autores</th>
+                            <th>Acciones</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                            <?php foreach ($libros as $libro): ?>
+                                        <tr>
+                                <td><?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?></td>
+                                <td><?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
+                                <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
+                                <td><?= htmlspecialchars($libro['editorial'] ?? 'Sin Editorial') ?></td>
+                                <td><?= htmlspecialchars($libro['genero'] ?? 'Sin Género') ?></td>
+                                <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
+                                <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
+                                <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
+                                <td>
+                                    <form action="verLibros.php" method="POST" style="display: inline;">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id'] ?? '') ?>">
+                                        <button type="submit" name="accion" value="editar" class="btn-editar">Editar</button>
+                                    </form>
+                                    <form action="verLibros.php" method="POST" style="display: inline;">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id'] ?? '') ?>">
+                                        <button type="submit" name="accion" value="borrar" class="btn-borrar">Borrar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>

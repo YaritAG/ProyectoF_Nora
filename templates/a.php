@@ -12,6 +12,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap"
         rel="stylesheet">
+
+    <link rel="stylesheet" href="static/a.css?ver=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -33,9 +35,9 @@
 
     <style>
         
-        .barra-superior {
+.barra-superior {
     font-family: 'Quicksand';
-    width: 97.6%;
+    width: 95%;
     background-color: #030504;
     color: #fff;
     display: flex;
@@ -47,13 +49,12 @@
     padding: 10px 20px;
     z-index: 10;
     backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(3px);
-        border-radius: 5px;
-        box-shadow: 0 5px 30px 0 rgba(22, 32, 220, 0.37);
-        padding-right: 35px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(3px);
+    border-radius: 5px;
+    box-shadow: 0 5px 30px 0 rgba(0, 50, 0, 0.7);
+    padding-right: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
-
 
 .btn-verLibros,
 .btn-verPrestamos,
@@ -63,8 +64,9 @@
 .btn-menu,
 .btn-perfil,
 .btn-logout,
-.btn-autores {
-    margin-right: 20px;
+.btn-autores,
+.btn-generos {
+    margin-right: 5px;
     border-radius: 5px;
     padding: 6px 10px;
 }
@@ -77,7 +79,8 @@ a.btn-users,
 a.btn-menu,
 a.btn-perfil,
 a.btn-logout,
-a.btn-autores {
+a.btn-autores,
+a.btn-generos {
     text-decoration: none;
     color: inherit; 
     position: relative;
@@ -94,7 +97,8 @@ a.btn-users::before,
 a.btn-menu::before,
 a.btn-perfil::before,
 a.btn-logout::before,
-a.btn-autores::before  {
+a.btn-autores::before,
+a.btn-generos::before  {
 content: "";
     position: absolute;
     width: 100%;
@@ -115,10 +119,11 @@ a.btn-users:hover::before,
 a.btn-menu:hover::before,
 a.btn-perfil:hover::before,
 a.btn-logout:hover::before,
-a.btn-autores:hover::before{
+a.btn-autores:hover::before,
+a.btn-generos:hover::before{
 transform: scaleX(1);
 }      
-    </style> 
+</style> 
 </body>
 
 </html>

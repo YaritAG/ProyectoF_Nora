@@ -57,7 +57,7 @@ session_start();
                 <!-- Sección de los géneros -->
                 <section class="roll-generos fade-in">
                     <div class="text-container">
-                        <h1 class="titulo-secciones"><a href="../public/user/generos.php" class="link-generos">Géneros</a><span class="span-rojo"> más leídos</span> de nuestro portal</h1>
+                        <h1 class="titulo-secciones"><a href="../public/user/generos.php" class="link-generos">Géneros</a> <b>más leídos</b> de nuestro portal</h1>
                         <p class="txt-secciones">
                             Destacan los títulos favoritos de los lectores. Desde misterio hasta romance, aquí encontrarás historias
                             cautivadoras y
@@ -176,7 +176,7 @@ session_start();
                 <!----------------------------------->
                 <section class="roll-librostop fade-in">
                     <div class="text-container">
-                        <h1 class="titulo-secciones">Libros<span class="span-rojo"> más leídos</span> de la semana</h1>
+                        <h1 class="titulo-secciones">Libros <b>más leídos</b> de la semana</h1>
                         <p class="txt-secciones">
                             Destacan los títulos favoritos de los lectores. Desde misterio hasta romance, aquí encontrarás historias
                             cautivadoras y

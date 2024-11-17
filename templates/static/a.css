@@ -17,7 +17,8 @@
     box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.7) !important;
     /* Sombra negra con mayor opacidad */
     padding-right: 35px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid #00ff40; /* Verde neón */
+    box-shadow: 0 0 10px #00ff40, 0 0 20px #00ff40; /* Efecto de neón */
 }
 
 .btn-verLibros,
@@ -48,6 +49,7 @@ a.btn-generos {
     position: relative;
     display: inline-block;
     overflow: hidden;
+        font-size: 10px;
 }
 
 

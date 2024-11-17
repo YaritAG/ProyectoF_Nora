@@ -116,15 +116,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
         <h1>Tabla de Usuarios</h1>
 
         <div class="seccion-tabla">
-
-            <!-- Buscador con método GET para obtener datos -->
+                          
+            <!-- Buscador con método GET para obtener datos -->    
             <div class="seccion-buscador">
                 <form method="GET" action="verUsuarios.php">
                     <input type="text" class="buscador" placeholder="Buscar..." name="query" aria-label="Buscar">
                     <button class="lupa" type="submit"><i class="fas fa-search"></i></button>
                 </form>
             </div>
-
+            
             <div class="inputs">
                 <div class="editor">
                     <h3>Editar o Agregar Usuario</h3>
@@ -164,8 +164,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
                         </div>
                     </form>
                 </div>
-            </div>
+            </div>  
 
+            <!-- Tabla -->
             <div class="table-outer-wrapper">
                 <div class="scrollbar-top">
                     <div class="scroll-sync"></div> <!-- Contenido para sincronización de scroll -->

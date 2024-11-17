@@ -1,5 +1,5 @@
 body{
-    background-color: #fff;
+    background-color: #7a7979;
     font-family: 'Quicksand';
     color: #fff;
 }
@@ -26,7 +26,7 @@ body{
 /* Estilos de la Barra Superior */
 .barra-superior {
     font-family: 'Quicksand';
-    width: 97.6%;
+    width: 96.2%;
     background-color: #030504;
     color: #fff;
     display: flex;
@@ -40,7 +40,7 @@ body{
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(3px);
     border-radius: 5px;
-    box-shadow: 0 5px 30px 0 rgba(22, 32, 220, 0.37);
+    box-shadow: 0 5px 30px 0 rgba(0, 50, 0, 0.7);
     padding-right: 35px;
     border: 1px solid rgba(255, 255, 255, 0.18);
 }

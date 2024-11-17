@@ -5,32 +5,21 @@ $conn = getConexion(); // Obtén la instancia de PDO y almacénala en $conn
 // Variable para mensajes de error
 $error = null;
 
-// Manejo de acciones de formulario
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $accion = $_POST['accion'];
-    $nombre = $_POST['nombre'];
-    $libros = isset($_POST['libros']) ? intval($_POST['libros']) : 0; // Asigna 0 si 'libros' no tiene valor
-
-    if ($accion === 'actualizar') {
-        $id = $_POST['id'];
-
-        // Validar si el autor ya existe por ID o nombre
-        $queryCheck = $conn->prepare("SELECT * FROM TAutor WHERE id_Autor = ? OR Nombre = ?");
-        $queryCheck->execute([$id, $nombre]);
-        $autorExistente = $queryCheck->fetch();
-
-        if ($autorExistente) {
-            $error = "El autor ya está registrado con el ID o el Nombre proporcionado.";
-        } else {
-            // Actualizar o insertar si no existe
-            if (!empty($id)) {
-                $query = $conn->prepare("UPDATE TAutor SET Nombre = ?, Libros = ? WHERE id_Autor = ?");
-                $query->execute([$nombre, $libros, $id]);
-            } else {
-                $query = $conn->prepare("INSERT INTO TAutor (Nombre, Libros) VALUES (?, ?)");
-                $query->execute([$nombre, $libros]);
-            }
-        }
+// Crear o actualizar
+if ($accion === 'actualizar') { 
+    if (empty($id)) {
+        // Crear nuevo género (no incluir id_Genero)
+        $stmt = $conn->prepare("INSERT INTO tgenero (Nombre, Descripcion) VALUES (:nombre, :descripcion)");
+        $stmt->bindParam(':nombre', $genero); // 'genero' contiene el Nombre
+        $stmt->bindParam(':descripcion', $descripcion);
+        $stmt->execute();
+    } else {
+        // Actualizar género existente
+        $stmt = $conn->prepare("UPDATE tgenero SET Nombre = :nombre, Descripcion = :descripcion WHERE id_Genero = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':nombre', $genero);
+        $stmt->bindParam(':descripcion', $descripcion);
+        $stmt->execute();
     }
 }
 
@@ -77,16 +66,22 @@ include '../../templates/a.php';
             <div class="inputs">
                 <div class="editor">
                     <h3>Editar o Agregar Autor</h3>
-                    <form id="editor-form" method="POST" action="verAutores.php">
-                        <!-- Campo oculto para almacenar el ID del usuario que se está editando -->
-                        <input type="hidden" id="id" name="id">
-
-                        <div class="seccion-2" id="nombreAutor">
-                            <label for="nombre">Nombre:</label>
-                            <input class="input-editor" type="text" id="nombre" name="nombre" required><br><br>
+                    <form action="verGeneros.php" method="POST">
+                        <!-- Campo oculto para el ID (solo en caso de edición, se deja vacío para nuevas entradas) -->
+                        <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id ?? '') ?>">
+                    
+                        <div class="seccion-1">
+                            <label for="nombre">Nombre del Género:</label>
+                            <input class="input-editor" type="text" id="nombre" name="genero" value="<?= htmlspecialchars($genero ?? '') ?>"
+                                required><br><br>
                         </div>
-
-                        <!-- Contenedor para los botones -->
+                    
+                        <div class="seccion-2">
+                            <label for="descripcion">Descripción:</label>
+                            <textarea class="input-editor" id="descripcion" name="descripcion" rows="4"
+                                required><?= htmlspecialchars($descripcion ?? '') ?></textarea><br><br>
+                        </div>
+                    
                         <div class="buttons">
                             <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button>
                             <button class="btn-cancel" type="reset">Cancelar</button>
