@@ -111,6 +111,16 @@ label #labeldesc {
     margin-right: 10px;
 }
 
+#img-advert {
+    font-size: 15px;
+}
+
+#imagen {
+    font-family: 'Quicksand';
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+
 .input-editor {
     border-radius: 5px;
     border: 1px solid #24302A;
