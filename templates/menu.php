@@ -1,5 +1,6 @@
 <?php 
 session_start();
+
 ?>
 
 <!DOCTYPE html>
@@ -22,26 +23,9 @@ session_start();
                 <img src="../assets/imgs/menu/destacada3.jpg" alt="Imagen de Cabecera" class="img-cabecera">
             </div>
 
-                <!-- Nav Bar -->
-                <nav class="barra-superior">
-                    <div class="botones-navbar">
-                        <a href="../public/user/prestamos.php" class="btn-prestamo">Realizar Prestamo</a>
-                        <a href="../public/user/generos.php" class="btn-generos">Géneros</a>
-                        <a href="about.html" class="btn-about">Acerca de</a>
-                        <a href="menu.php" class="btn-menu">Menú</a>
-                        <a href="../public/user/libros.php" class="btn-libros">Libros</a>
-                        
-                        <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                            <a href="../public/admin/ventanaAdmin.php" class="btn-admin">Panel de Administración</a>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="logout">
-                        <a href="../public/user/perfil.php" class="btn-perfil">Mi Perfil</a>
-                        <a href="../public/user/login.php" class="btn-logout">Cerrar Sesión</a>
-                    </div>
-                </nav>
-
+            <header>
+                <?php include 'header.php'; ?>
+            </header>
             <!-- Sección donde se encuentra el contenido -->
             <div class="seccion-principal">
                 <!-- seccion del titulo -->

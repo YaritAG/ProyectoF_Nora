@@ -3,7 +3,13 @@ body{
     font-family: 'Quicksand';
     color: #fff;
 }
-
+/* Hacer el header sticky */
+header {
+    position: sticky;
+    top: 0;
+    /* Mantenerlo pegado al top */
+    z-index: 1000;
+}
 /* ----------------------------------------
 /   Efecto de Desvanecimiento
 / ---------------------------------------- */

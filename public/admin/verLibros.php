@@ -19,6 +19,12 @@ $libroEdit = null;
 $añoActual = date('Y');
 $anios = range($añoActual, 1600);
 
+// Obtener los géneros para el select
+$queryGeneros = "SELECT id_Genero, Nombre FROM tgenero ORDER BY Nombre ASC";
+$stmtGeneros = $conn->prepare($queryGeneros);
+$stmtGeneros->execute();
+$generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
+
 // Maneja las acciones enviadas por el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion = $_POST['accion'] ?? '';
@@ -30,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($query);
         $stmt->execute([$id]);
 
-        // Elimina también la relación con los autores
-        $query = "DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?";
+        // Elimina también la relación con géneros
+        $query = "DELETE FROM tlibros_has_tgenero WHERE TLibros_id_Libro = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id]);
 
@@ -44,14 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = $_POST['id'];
         $query = "
             SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar,
-                   l.Editorial AS editorial, l.Genero AS genero, 
-                   l.Paginas AS paginas, l.Año AS año, 
-                   GROUP_CONCAT(a.id_Autor SEPARATOR ',') AS autores
+                   l.Editorial AS editorial, l.Paginas AS paginas, l.Año AS año, 
+                   g.id_Genero AS genero
             FROM tlibros l
-            LEFT JOIN tautor_has_tlibros ahl ON l.id_Libro = ahl.TLibros_id_Libro
-            LEFT JOIN tautor a ON ahl.TAutor_id_Autor = a.id_Autor
+            LEFT JOIN tlibros_has_tgenero lhg ON l.id_Libro = lhg.TLibros_id_Libro
+            LEFT JOIN tgenero g ON lhg.TGenero_id_Genero = g.id_Genero
             WHERE l.id_Libro = ?
-            GROUP BY l.id_Libro";
+            LIMIT 1";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id]);
         $libroEdit = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -63,10 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nombre = $_POST['nombre'];
         $ejemplar = $_POST['ejemplar'];
         $editorial = $_POST['editorial'];
-        $genero = $_POST['genero'];
         $paginas = $_POST['paginas'];
         $año = $_POST['año'];
-        $autores = is_array($_POST['autor']) ? $_POST['autor'] : [];
+        $generoSeleccionado = $_POST['genero'] ?? null; // Género seleccionado del select
 
         // Validación del año
         if ($año > $añoActual || $año < 1600) {
@@ -76,38 +80,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!empty($id)) {
             // Actualiza libro existente
-            $query = "UPDATE tlibros SET Nombre = ?, Ejemplar = ?, Editorial = ?, Genero = ?, Paginas = ?, Año = ? WHERE id_Libro = ?";
+            $query = "UPDATE tlibros SET Nombre = ?, Ejemplar = ?, Editorial = ?, Paginas = ?, Año = ? WHERE id_Libro = ?";
             $stmt = $conn->prepare($query);
-            $stmt->execute([$nombre, $ejemplar, $editorial, $genero, $paginas, $año, $id]);
+            $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año, $id]);
 
-            // Borra las relaciones anteriores de autores
-            $query = "DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$id]);
+            // Actualiza la relación de género (solo si no existe ya)
+            if ($generoSeleccionado) {
+                $query = "SELECT COUNT(*) FROM tlibros_has_tgenero WHERE TLibros_id_Libro = ? AND TGenero_id_Genero = ?";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$id, $generoSeleccionado]);
+                $existe = $stmt->fetchColumn();
 
-            // Inserta las nuevas relaciones de autores
-            foreach ($autores as $autorId) {
-                if (!empty($autorId)) {
-                    $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
+                if (!$existe) {
+                    // Insertar la relación si no existe
+                    $query = "INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)";
                     $stmt = $conn->prepare($query);
-                    $stmt->execute([$id, $autorId]);
+                    $stmt->execute([$id, $generoSeleccionado]);
                 }
             }
         } else {
             // Inserta un nuevo libro
-            $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Genero, Paginas, Año) VALUES (?, ?, ?, ?, ?, ?)";
+            $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Paginas, Año) VALUES (?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
-            $stmt->execute([$nombre, $ejemplar, $editorial, $genero, $paginas, $año]);
+            $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año]);
 
             $idLibro = $conn->lastInsertId();
 
-            // Inserta las relaciones de autores
-            foreach ($autores as $autorId) {
-                if (!empty($autorId)) {
-                    $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute([$idLibro, $autorId]);
-                }
+            // Inserta la relación de género
+            if ($generoSeleccionado) {
+                $query = "INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$idLibro, $generoSeleccionado]);
             }
         }
 
@@ -119,13 +122,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Obtener todos los libros para mostrar en la tabla
 $query = "
     SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar, 
-           l.Editorial AS editorial, l.Genero AS genero, 
-           l.Paginas AS paginas, l.Año AS año, 
-           GROUP_CONCAT(a.Nombre SEPARATOR ', ') AS autores
+           l.Editorial AS editorial, l.Paginas AS paginas, l.Año AS año,
+           g.Nombre AS genero
     FROM tlibros l
-    LEFT JOIN tautor_has_tlibros ahl ON l.id_Libro = ahl.TLibros_id_Libro
-    LEFT JOIN tautor a ON ahl.TAutor_id_Autor = a.id_Autor
-    GROUP BY l.id_Libro
+    LEFT JOIN tlibros_has_tgenero lhg ON l.id_Libro = lhg.TLibros_id_Libro
+    LEFT JOIN tgenero g ON lhg.TGenero_id_Genero = g.id_Genero
     ORDER BY l.Nombre ASC;
 ";
 $stmt = $conn->prepare($query);
@@ -142,6 +143,7 @@ $autores = $stmtAutores->fetchAll(PDO::FETCH_ASSOC);
 include '../../templates/a.php';
 ?>
 
+<!-- Archivo HTML -->
 <!DOCTYPE html>
 <html lang="es">
 
@@ -210,11 +212,18 @@ include '../../templates/a.php';
                             <input class="input-editor" type="text" id="editorial" name="editorial"
                                 value="<?= htmlspecialchars($libroEdit['Editorial'] ?? '') ?>" required><br><br>
                             
-                            <!-- Ingresar el Género -->
+                            <!-- Seleccionar Género -->
                             <label for="genero">Género:</label>
-                            <input class="input-editor" type="text" id="genero" name="genero"
-                                value="<?= htmlspecialchars($libroEdit['Genero'] ?? '') ?>" required><br><br>
-                            
+                            <select id="genero" name="genero" class="input-editor" required>
+                                <option value="">Selecciona un género</option>
+                                <?php foreach ($generos as $genero): ?>
+                                    <option value="<?= $genero['id_Genero'] ?>" <?= isset($libroEdit['generos']) && in_array($genero['id_Genero'], explode(',', $libroEdit['generos'])) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($genero['Nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <br><br>
+
                             <!-- Ingresar el numero de páginas del libro -->
                             <label for="paginas">Páginas:</label>     
                             <input class="input-editor" type="number" id="paginas" name="paginas"

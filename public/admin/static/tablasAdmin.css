@@ -44,6 +44,7 @@ h1 {
     border: 1px solid #000;
     margin-right: 0px;
     padding: 4px 10px;
+    font-family: 'Quicksand';
 }
 
 /* Estilos para el botón de búsqueda */
@@ -85,6 +86,11 @@ h3 {
     font-weight: 300;
 }
 
+.input-editor {
+    font-family: 'Quicksand';
+    color: #000;
+    font-family: 500;
+}
 /* Estilos generales para el formulario */
 #editor-form {
     margin-top: 40px;
@@ -125,6 +131,11 @@ label #labeldesc {
 
 #descripcion {
     margin-top: 10px;
+    width: 500px;
+    font-family: 'Quicksand';
+    border: 1px solid;
+    padding: 5px 10px;
+    height: auto;
 }
 
 /* Estilos para el contenedor de botones */
@@ -200,6 +211,9 @@ label #labeldesc {
     
 }
 
+#tabla-libros {
+    margin-top: -460px;
+}
 /* Barra de desplazamiento superior */
 .scrollbar-top {
     overflow-x: auto;
