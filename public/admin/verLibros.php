@@ -15,7 +15,7 @@ $conn = getConexion();
 // Variable para prellenar el formulario en caso de edición
 $libroEdit = null;
 
-// Genera un rango de años (desde el actual hacia 1900)
+// Genera un rango de años (desde el actual hacia 1600)
 $añoActual = date('Y');
 $anios = range($añoActual, 1600);
 
@@ -45,10 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $query = "
             SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar,
                    l.Editorial AS editorial, l.Genero AS genero, 
-                   l.Paginas AS paginas, l.Año AS año, ahl.TAutor_id_Autor AS autor
+                   l.Paginas AS paginas, l.Año AS año, 
+                   GROUP_CONCAT(a.id_Autor SEPARATOR ',') AS autores
             FROM tlibros l
             LEFT JOIN tautor_has_tlibros ahl ON l.id_Libro = ahl.TLibros_id_Libro
-            WHERE l.id_Libro = ?";
+            LEFT JOIN tautor a ON ahl.TAutor_id_Autor = a.id_Autor
+            WHERE l.id_Libro = ?
+            GROUP BY l.id_Libro";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id]);
         $libroEdit = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -63,11 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $genero = $_POST['genero'];
         $paginas = $_POST['paginas'];
         $año = $_POST['año'];
-        $autor = $_POST['autor'];
+        $autores = is_array($_POST['autor']) ? $_POST['autor'] : [];
 
         // Validación del año
-        if ($año > $añoActual || $año < 1900) {
-            echo "El año debe ser entre 1900 y $añoActual.";
+        if ($año > $añoActual || $año < 1600) {
+            echo "El año debe ser entre 1600 y $añoActual.";
             exit;
         }
 
@@ -77,10 +80,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $conn->prepare($query);
             $stmt->execute([$nombre, $ejemplar, $editorial, $genero, $paginas, $año, $id]);
 
-            // Actualiza relación autor-libro
-            $query = "UPDATE tautor_has_tlibros SET TAutor_id_Autor = ? WHERE TLibros_id_Libro = ?";
+            // Borra las relaciones anteriores de autores
+            $query = "DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?";
             $stmt = $conn->prepare($query);
-            $stmt->execute([$autor, $id]);
+            $stmt->execute([$id]);
+
+            // Inserta las nuevas relaciones de autores
+            foreach ($autores as $autorId) {
+                if (!empty($autorId)) {
+                    $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
+                    $stmt = $conn->prepare($query);
+                    $stmt->execute([$id, $autorId]);
+                }
+            }
         } else {
             // Inserta un nuevo libro
             $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Genero, Paginas, Año) VALUES (?, ?, ?, ?, ?, ?)";
@@ -89,10 +101,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $idLibro = $conn->lastInsertId();
 
-            // Inserta relación autor-libro
-            $query = "INSERT INTO tautor_has_tlibros (TAutor_id_Autor, TLibros_id_Libro) VALUES (?, ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$autor, $idLibro]);
+            // Inserta las relaciones de autores
+            foreach ($autores as $autorId) {
+                if (!empty($autorId)) {
+                    $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
+                    $stmt = $conn->prepare($query);
+                    $stmt->execute([$idLibro, $autorId]);
+                }
+            }
         }
 
         header('Location: verLibros.php');
@@ -104,10 +120,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $query = "
     SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar, 
            l.Editorial AS editorial, l.Genero AS genero, 
-           l.Paginas AS paginas, l.Año AS año, a.Nombre AS autor
+           l.Paginas AS paginas, l.Año AS año, 
+           GROUP_CONCAT(a.Nombre SEPARATOR ', ') AS autores
     FROM tlibros l
     LEFT JOIN tautor_has_tlibros ahl ON l.id_Libro = ahl.TLibros_id_Libro
     LEFT JOIN tautor a ON ahl.TAutor_id_Autor = a.id_Autor
+    GROUP BY l.id_Libro
     ORDER BY l.Nombre ASC;
 ";
 $stmt = $conn->prepare($query);
@@ -120,10 +138,11 @@ $stmtAutores = $conn->prepare($queryAutores);
 $stmtAutores->execute();
 $autores = $stmtAutores->fetchAll(PDO::FETCH_ASSOC);
 
-// Validación  de datos salientes
+// Validación de datos salientes
 echo '<pre>';
 print_r($libros);
 echo '</pre>';
+
 
 // Incluir el archivo a.php
 include '../../templates/a.php';
@@ -136,7 +155,7 @@ include '../../templates/a.php';
     <meta charset="UTF-8">
     <title>Libros | Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="static/tablasAdmin.css">
+    <link rel="stylesheet" href="static/tablasAdmin.css?=ver<?php echo time(); ?>">
 </head>
 
 <body>
@@ -145,62 +164,74 @@ include '../../templates/a.php';
 
         <!-- Formulario para agregar o editar un libro -->
         <div class="inputs">
-            <div class="editors">
-                <h3>Editar o Agregar Libro</h3>
-                <form id="editor-form" action="verLibros.php" method="POST">
-                    <!-- Campo oculto para almacenar el ID en caso de edición -->
-                    <input type="hidden" id="id" name="id" value="<?= $libroEdit['id_Libro'] ?? '' ?>">
-
+        <div class="editors">
+        <h3>Editar o Agregar Libro</h3>
+        <form id="editor-form" action="verLibros.php" method="POST">
+            <!-- Campo oculto para almacenar el ID en caso de edición -->
+            <input type="hidden" id="id" name="id" value="<?= $libroEdit['id_Libro'] ?? '' ?>">   
+        
                     <div class="seccion-1">
                         <label for="nombre">Nombre:</label>
                         <input class="input-editor" type="text" id="nombre" name="nombre"
-
-                        value="<?= htmlspecialchars($libroEdit['Nombre'] ?? '') ?>" required><br><br>
-
+                            value="<?= htmlspecialchars($libroEdit['Nombre'] ?? '') ?>" required><br><br>
+        
                         <label for="ejemplar">Ejemplares:</label>
                         <input class="input-editor" type="number" id="ejemplar" name="ejemplar"
                             value="<?= htmlspecialchars($libroEdit['Ejemplar'] ?? '') ?>" required><br><br>
-                    </div>
-
-                    <div class="seccion-2">
-                        <label for="editorial">Editorial:</label>
-                        <input class="input-editor" type="text" id="editorial" name="editorial"
-                            value="<?= htmlspecialchars($libroEdit['Editorial'] ?? '') ?>" required><br><br>
-
-                        <label for="genero">Género:</label>
-                        <input class="input-editor" type="text" id="genero" name="genero"
-                            value="<?= htmlspecialchars($libroEdit['Genero'] ?? '') ?>" required><br><br>
-                        <label for="autor">Autor:</label>
-
-                        <label for="autor">Autor:</label>
-                        <select class="input-editor" id="autor" name="autor" required>
-                            <option value="">Selecciona un autor</option>
-                            <?php foreach ($autores as $autor): ?>
-                                <option value="<?= $autor['id_Autor'] ?>" <?= isset($libroEdit['autor']) && $libroEdit['autor'] == $autor['id_Autor'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($autor['Nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-
-                    </div>
-
-                    <div class="seccion-3">
-                        
-                        <label for="paginas">Páginas:</label>
-                        <input class="input-editor" type="number" id="paginas" name="paginas"
-                            value="<?= htmlspecialchars($libroEdit['Paginas'] ?? '') ?>" required><br><br>
-
+                                                
                         <label for="año">Año:</label>
                         <select class="input-editor" id="año" name="año" required>
                             <option value="">Selecciona un año</option>
                             <?php foreach ($anios as $año): ?>
-                                <option value="<?= $año ?>" <?= isset($libroEdit['Año']) && $libroEdit['Año'] == $año ? 'selected' : '' ?>>
-                                    <?= $año ?>
+                                                        <option value="<?= $año ?>" <?= isset($libroEdit['Año']) && $libroEdit['Año'] == $año ? 'selected' : '' ?>>
+                                                            <?= $año ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select><br><br>
+                    </div>
+        
+                    <div class="seccion-2">
+                        <label for="editorial">Editorial:</label>
+                        <input class="input-editor" type="text" id="editorial" name="editorial"
+                            value="<?= htmlspecialchars($libroEdit['Editorial'] ?? '') ?>" required><br><br>
+        
+                        <label for="genero">Género:</label>
+                        <input class="input-editor" type="text" id="genero" name="genero"
+                            value="<?= htmlspecialchars($libroEdit['Genero'] ?? '') ?>" required><br><br>
+                                               <label for="paginas">Páginas:</label>
+                        
+                            <input class="input-editor" type="number" id="paginas" name="paginas"
+                            value="<?= htmlspecialchars($libroEdit['Paginas'] ?? '') ?>" required><br><br>
+        
+                    </div>
+        
+                    <div class="seccion-3">
+    <label for="autor">Autor Principal:</label>
+    <select class="input-editor" id="autor" name="autor[]" required>
+        <option value="">Selecciona un autor</option>
+        <?php foreach ($autores as $autor): ?>
+                                <option value="<?= $autor['id_Autor'] ?>" <?= isset($libroEdit['autores']) && in_array($autor['id_Autor'], explode(',', $libroEdit['autores'])) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($autor['Nombre']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select><br><br>
+                    
+                        <label>
+                            <input type="checkbox" id="mas_autores" name="mas_autores" onchange="toggleSegundoAutor()"> Libro con más
+                            autores
+                        </label><br><br>
+                    
+                        <div id="segundo_autor" style="display: none;">
+                            <label for="autor_extra">Autor Secundario:</label>
+                            <select class="input-editor" id="autor_extra" name="autor[]">
+                                <option value="">Selecciona un autor</option>
+                                <?php foreach ($autores as $autor): ?>
+                                    <option value="<?= $autor['id_Autor'] ?>"><?= htmlspecialchars($autor['Nombre']) ?></option>
+                                <?php endforeach; ?>
+                            </select><br><br>
+                        </div>
                     </div>
-
+        
                     <!-- Botones -->
                     <div class="buttons">
                         <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button>
@@ -209,10 +240,20 @@ include '../../templates/a.php';
                 </form>
             </div>
         </div>
-
+                                    
+                                    
+       <script>
+            // Muestra/oculta el segundo autor
+            function toggleSegundoAutor() {
+                const checkbox = document.getElementById('mas_autores');
+                const segundoAutor = document.getElementById('segundo_autor');
+                segundoAutor.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        </script>
+        
         <!-- Tabla de libros -->
         <div class="table-wrapper">
-            <table>
+           <table>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -222,13 +263,13 @@ include '../../templates/a.php';
                         <th>Género</th>
                         <th>Páginas</th>
                         <th>Año</th>
-                        <th>Autor(es)</th>
+                        <th>Autores</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($libros as $libro): ?>
-                        <tr>
+                        <?php foreach ($libros as $libro): ?>
+                                    <tr>
                             <td><?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?></td>
                             <td><?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
                             <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
@@ -236,14 +277,12 @@ include '../../templates/a.php';
                             <td><?= htmlspecialchars($libro['genero'] ?? 'Sin Género') ?></td>
                             <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
                             <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
-                            <td><?= htmlspecialchars($libro['autor'] ?? 'Sin Autor') ?></td>
+                            <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
                             <td>
-                                <!-- Botón Editar -->
                                 <form action="verLibros.php" method="POST" style="display: inline;">
                                     <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id'] ?? '') ?>">
                                     <button type="submit" name="accion" value="editar">Editar</button>
                                 </form>
-                                <!-- Botón Borrar -->
                                 <form action="verLibros.php" method="POST" style="display: inline;">
                                     <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id'] ?? '') ?>">
                                     <button type="submit" name="accion" value="borrar">Borrar</button>
