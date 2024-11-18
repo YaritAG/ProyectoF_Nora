@@ -18,6 +18,30 @@ $id = $genero = $descripcion = $imagenRuta = "";
 $accion = $_POST['accion'] ?? "";
 $queryString = $_GET['query'] ?? "";
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'editar') {
+    $id = $_GET['id'] ?? null; // Captura el ID enviado por GET
+    if ($id) {
+        $stmt = $conn->prepare("SELECT * FROM tgenero WHERE id_Genero = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $generoSeleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($generoSeleccionado) {
+            $id = $generoSeleccionado['id_Genero'];
+            $genero = $generoSeleccionado['Nombre'];
+            $descripcion = $generoSeleccionado['Descripcion'];
+            $imagenRuta = $generoSeleccionado['Imagen'];
+        } else {
+            $_SESSION['mensaje'] = "No se encontró el género con ID $id.";
+            header('Location: verGeneros.php');
+            exit;
+        }
+    } else {
+        $_SESSION['mensaje'] = "ID de género no válido.";
+        header('Location: verGeneros.php');
+        exit;
+    }
+}
+
 // Manejar acciones POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? null;
@@ -89,19 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['mensaje'] = "Género eliminado correctamente.";
     }
 
-    // Enviar género a la página principal
-    if ($accion === 'enviar') {
-        $stmt = $conn->prepare("UPDATE tgenero SET Agregado = 1, FechaAgregado = NOW() WHERE id_Genero = :id");
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        $_SESSION['mensaje'] = "Género enviado correctamente a la página principal.";
-    }
-
     header('Location: verGeneros.php');
     exit;
 }
 
-// Leer géneros de la base de datos con filtro
+// Leer géneros de la base de datos
 $sql = "SELECT id_Genero, Nombre, Descripcion, Imagen, Agregado FROM tgenero";
 $params = [];
 if (!empty($queryString)) {
@@ -115,7 +131,6 @@ $generos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 include '../../templates/a.php';
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -144,29 +159,34 @@ include '../../templates/a.php';
                         value="<?= htmlspecialchars($queryString ?? '') ?>" aria-label="Buscar">
                     <button class="lupa" type="submit"><i class="fas fa-search"></i></button>
                 </form>
-            </div>
-            
-            <div class="inputs">
-                <div class="editors">
-                    <h3>Agregar o Editar Género</h3>
-                    <form action="verGeneros.php" method="POST" enctype="multipart/form-data">
-                        <div class="seccion-2">
-                            <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id ?? '') ?>">
-                            
+                </div>
+                
+                <div class="inputs">
+                    <div class="editors">
+                        <h3>Agregar o Editar Género</h3>
+                        <form action="verGeneros.php" method="POST" enctype="multipart/form-data">
+                            <div class="seccion-2">
+                                <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($id ?? '') ?>">
+                                        
                             <label for="genero">Nombre del Género:</label> <br><br>
-                            <input class="input-editor" type="text" id="genero" name="genero" value="<?= htmlspecialchars($genero ?? '') ?>" required><br><br>
-                            
+                            <input class="input-editor" type="text" id="genero" name="genero" value="<?= htmlspecialchars($genero ?? '') ?>"
+                                required><br><br>
+                    
                             <label for="descripcion">Descripción:</label><br>
-                            <textarea class="input-editor" id="descripcion" name="descripcion" rows="5" required><?= htmlspecialchars($descripcion ?? '') ?></textarea><br><br>
-                            
+                            <textarea class="input-editor" id="descripcion" name="descripcion" rows="5"
+                                required><?= htmlspecialchars($descripcion ?? '') ?></textarea><br><br>
+                    
                             <label for="imagen">Seleccionar Imagen:</label><br>
-                            <input  type="file" id="imagen" name="imagen" accept="image/*"><br>
-                        </div> 
-
-                        <div class="buttons"> 
+                            <input type="file" id="imagen" name="imagen" accept="image/*"><br>
+                            <?php if (!empty($imagenRuta)): ?>
+                                <img src="<?= htmlspecialchars($imagenRuta) ?>" alt="Imagen actual" style="width: 50px; height: 50px;">
+                            <?php endif; ?>
+                        </div>
+                    
+                        <div class="buttons">
                             <button type="submit" name="accion" value="actualizar" class="btn-save">Guardar</button>
                             <button type="reset" class="btn-cancel">Cancelar</button>
-                        </div>   
+                        </div>
                     </form>
                 </div>
             </div>
@@ -184,42 +204,44 @@ include '../../templates/a.php';
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                  <tbody>
                         <?php foreach ($generos as $genero): ?>
-                            <tr class="<?= $genero['Agregado'] ? 'enviado' : '' ?>">
-                                <td><?= htmlspecialchars($genero['id_Genero']) ?></td>
-                                <td><?= htmlspecialchars($genero['Nombre']) ?></td>
-                                <td><?= htmlspecialchars($genero['Descripcion']) ?></td>
-                                <td>
-                                    <?php if (!empty($genero['Imagen'])): ?>
-                                        <img src="<?= htmlspecialchars($genero['Imagen']) ?>" alt="Imagen del género"
-                                            style="width: 50px; height: 50px;">
-                                    <?php else: ?>
-                                        <span>No Imagen</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($genero['Agregado']): ?>
-                                        <button disabled>Enviado</button>
-                                    <?php else: ?>
-                                        <form action="verGeneros.php" method="POST" onsubmit="return confirmarEnvio();">
-                                            <input type="hidden" name="id" value="<?= $genero['id_Genero'] ?>">
-                                            <button type="submit" name="accion" value="enviar" class="send-form">Enviar</button>
-                                        </form>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <form action="verGeneros.php" method="POST">
+                        <tr class="<?= $genero['Agregado'] ? 'enviado' : '' ?>">
+                            <td><?= htmlspecialchars($genero['id_Genero']) ?></td>
+                            <td><?= htmlspecialchars($genero['Nombre']) ?></td>
+                            <td><?= htmlspecialchars($genero['Descripcion']) ?></td>
+                            <td>
+                                <?php if (!empty($genero['Imagen'])): ?>
+                                    <img src="<?= htmlspecialchars($genero['Imagen']) ?>" alt="Imagen del género"
+                                        style="width: 50px; height: 50px;">
+                                <?php else: ?>
+                                    <span>No Imagen</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($genero['Agregado']): ?>
+                                    <button disabled>Enviado</button>
+                                <?php else: ?>
+                                    <form action="verGeneros.php" method="POST" onsubmit="return confirmarEnvio();">
                                         <input type="hidden" name="id" value="<?= $genero['id_Genero'] ?>">
-                                        <button type="submit" name="accion" value="editar" class="btn-editar">Editar</button>
-                                    </form><br>
-                                    <form action="verGeneros.php" method="POST">
-                                        <input type="hidden" name="id" value="<?= $genero['id_Genero'] ?>">
-                                        <button type="submit" name="accion" value="borrar" class="btn-borrar">Borrar</button>
+                                        <button type="submit" name="accion" value="enviar" class="send-form">Enviar</button>
                                     </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <!-- Aquí reemplazas el formulario de "Editar" -->
+                                <form action="verGeneros.php" method="GET">
+                                    <input type="hidden" name="accion" value="editar">
+                                    <input type="hidden" name="id" value="<?= $genero['id_Genero'] ?>">
+                                    <button type="submit" class="btn-editar">Editar</button>
+                                </form><br>
+                                <form action="verGeneros.php" method="POST">
+                                    <input type="hidden" name="id" value="<?= $genero['id_Genero'] ?>">
+                                    <button type="submit" name="accion" value="borrar" class="btn-borrar">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
