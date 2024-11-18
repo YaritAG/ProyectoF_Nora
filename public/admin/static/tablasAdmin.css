@@ -311,6 +311,20 @@ table tr:hover {
     color: #fff;
 }
 
+.send-form {
+    font-family: 'Quicksand';
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.send-form:hover {
+    transform: scale(1.05);
+    background-color: #f5c6cb;
+}
+
 /* Hover para Botón Editar */
 .btn-editar:hover {
     background-color: #388E3C;
