@@ -154,26 +154,39 @@ $generos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </a>
                 </div>
                 
-                <?php foreach ($generos as $genero): ?>
-                    <div class="sec-genero-libro">
-                        <a href="generos/<?= strtolower(str_replace(' ', '_', $genero['Nombre'])) ?>/index.html" class="link-genero">
-                            <div class="container-cards">
-                                <div class="frente">
-                                    <img src="<?= htmlspecialchars($genero['Imagen']) ?>"
-                                        alt="Imagen de <?= htmlspecialchars($genero['Nombre']) ?>" class="img-genero">
-                                    <div class="inner">
-                                        <p><?= htmlspecialchars($genero['Nombre']) ?></p>
-                                    </div>
-                                </div>
-                                <div class="detras">
-                                    <div class="inner">
-                                        <p><?= htmlspecialchars($genero['Descripcion']) ?></p>
-                                    </div>
-                                </div>
+                <div class="seccion-libro">
+                    <?php foreach ($libros as $libro): ?>
+                        <h3>Género de <?= htmlspecialchars($libro['Genero']) ?></h3>
+                        <div class="libro">
+                            <div class="seccion-imagen">
+                                <img src="../../assets/imgs/menu/<?= htmlspecialchars($libro['Nombre']) ?>.jpg" alt="" class="img-libro">
                             </div>
-                        </a>
-                    </div>
-                <?php endforeach; ?>
+                            <p class="titulo-libro"><?= htmlspecialchars($libro['Nombre']) ?></p>
+                            <ul class="lista-características">
+                                <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor']) ?></li>
+                                <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas']) ?></li>
+                                <li><b>Año:</b> <?= htmlspecialchars($libro['Año']) ?></li>
+                                <li><b>Género:</b> <?= htmlspecialchars($libro['Genero']) ?></li>
+                                <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial']) ?></li>
+                                <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar']) ?></li>
+                            </ul>
+
+                            <div class="sintesis">
+                                <p>"<?= htmlspecialchars($libro['Sintesis'] ?? 'Sin sinopsis disponible.') ?>"</p>
+                            </div>
+
+                            <div class="buttons">
+                                <!-- Formulario para registrar el préstamo -->
+                                <form action="libros.php" method="POST">
+                                    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+                                    <input type="hidden" name="libro_id" value="<?= $libro['id_Libro'] ?>"> <!-- ID del libro dinámico -->
+                                    <input class="btn-solicitar" type="submit" value="Solicitar Préstamo"
+                                        onclick="return confirm('¿Estás seguro de que deseas solicitar este libro?')">
+                                </form>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     </div>

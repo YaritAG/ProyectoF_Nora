@@ -8,45 +8,70 @@ body {
 header {
     position: sticky;
     top: 0;
-    /* Mantenerlo pegado al top */
     z-index: 1000;
 }
 
-/* ----------------------------------------
-/   Efecto de Desvanecimiento
-/ ---------------------------------------- */
-/* Efecto de entrada */
-.fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-.fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* ----------------------------------------
-/   Efecto de Desvanecimiento
-/ ---------------------------------------*/
-.seccion-principal {
+.container {
     margin: 50px 40px;
     background-color: #24302A;
-    ;
     border-radius: 15px;
-    padding: 20px 90px;
+    padding: 20px 0px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ----------------------------------------
+/   Estilo de la sección de la tabla
+/ --------------------------------------- */
+.seccion-tabla {
+    padding: 10px 60px;
 }
 
 h1 {
     font-weight: 400;
     font-size: 50px;
-    width: auto;
     text-align: center;
 }
 
 h3 {
-    width: auto;
     text-align: center;
-    font-weight: 400;
+    font-weight: 300;
+}
+
+/* Estilos de la tabla */
+table {
+    width: 100%;
+    border-radius: 15px;
+    border-collapse: collapse;
+    background-color: #fff;
+    color: #000;
+}
+
+/* Estilos para las celdas */
+table th,
+table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #000;
+}
+
+/* Estilo para el encabezado */
+table th {
+    background-color: #4E5A54;
+    font-weight: bold;
+    color: #fff;
+}
+
+table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.mensaje {
+    color: #28a745;
+    text-align: center;
+}
+
+.error {
+    color: #dc3545;
+    text-align: center;
 }

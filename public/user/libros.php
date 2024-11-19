@@ -7,11 +7,11 @@ error_reporting(E_ALL);
 // Iniciar la sesión
 session_start();
 
-// Archivo de conexión a la base de datos (solo una vez)
+// Archivo de conexión a la base de datos
 require '../admin/db.php';
 
-// Verificar si el usuario está logueado y tiene el rol de administrador
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
     header('Location: ../../templates/menu.php');
     exit;
 }
@@ -19,42 +19,46 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 // Establecer la conexión a la base de datos
 $conn = getConexion();
 
-// Verificar si se envió el formulario de préstamo
+// Verificar si se envió un libro desde `verLibros.php`
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userId = $_POST['user_id'] ?? null; // ID del usuario enviado desde el formulario
     $libroId = $_POST['libro_id'] ?? null; // ID del libro enviado desde el formulario
-    $fechaPrestamo = date('Y-m-d H:i:s'); // Fecha actual
 
-    if ($userId && $libroId) {
+    if ($libroId) {
         try {
-            // Insertar el préstamo en la tabla `tprestamo`
-            $stmt = $conn->prepare("
-                INSERT INTO tprestamo (fecha_prestamo, TPersonas_id_Personas, TLibros_id_Libro, Devuelto) 
-                VALUES (:fecha_prestamo, :user_id, :libro_id, 0)
-            ");
-            $stmt->bindParam(':fecha_prestamo', $fechaPrestamo);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->bindParam(':libro_id', $libroId);
+            // Marcar el libro como enviado en la base de datos
+            $stmt = $conn->prepare("UPDATE tlibros SET Enviado = 1 WHERE id_Libro = :libro_id");
+            $stmt->bindParam(':libro_id', $libroId, PDO::PARAM_INT);
             $stmt->execute();
 
-            $_SESSION['mensaje'] = "¡Préstamo registrado exitosamente!";
+            $_SESSION['mensaje'] = "¡Libro enviado exitosamente!";
         } catch (PDOException $e) {
-            $_SESSION['error'] = "Error al registrar el préstamo: " . $e->getMessage();
+            $_SESSION['error'] = "Error al enviar el libro: " . $e->getMessage();
         }
     } else {
-        $_SESSION['error'] = "Hubo un error al registrar el préstamo. Verifique los datos enviados.";
+        $_SESSION['error'] = "ID de libro no válido.";
     }
+
+    // Redirigir para evitar reenvío del formulario
+    header('Location: libros.php');
+    exit;
 }
 
-// Redirigir a la página de préstamos y detener el script
-header('Location: prestamos.php');
-exit;
-
-// Consultar todos los libros
-$stmt = $conn->prepare("SELECT * FROM tlibros");
+// Consultar todos los libros marcados como enviados
+$stmt = $conn->prepare("
+    SELECT l.id_Libro, l.Nombre, l.Ejemplar, l.Editorial, l.Paginas, l.Año, l.Sintesis AS Sinopsis,
+           g.Nombre AS Genero, a.Nombre AS Autor
+    FROM tlibros l
+    LEFT JOIN tautor_has_tlibros al ON l.id_Libro = al.TLibros_id_Libro
+    LEFT JOIN tautor a ON al.TAutor_id_Autor = a.id_Autor
+    LEFT JOIN tlibros_has_tgenero lg ON l.id_Libro = lg.TLibros_id_Libro
+    LEFT JOIN tgenero g ON lg.TGenero_id_Genero = g.id_Genero
+    WHERE l.Enviado = 1 -- Solo mostrar libros enviados
+");
 $stmt->execute();
 $libros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -208,33 +212,36 @@ $libros = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="seccion-libro">
-            <h3>Género de <?= htmlspecialchars($libro['Genero']) ?></h3>
-                <div class="libro">
-                    <div class="seccion-imagen">
-                        <img src="../../assets/imgs/menu/<?= htmlspecialchars($libro['Nombre']) ?>.jpg" alt="" class="img-libro">
+                <?php foreach ($libros as $libro): ?>
+                    <h3>Género de <?= htmlspecialchars($libro['Genero'] ?? 'Desconocido') ?></h3>
+                    <div class="libro">
+                        <div class="seccion-imagen">
+                            <img src="../../assets/imgs/menu/<?= htmlspecialchars($libro['Nombre']) ?>.jpg"
+                                alt="Imagen de <?= htmlspecialchars($libro['Nombre']) ?>" class="img-libro">
+                        </div>
+                        <p class="titulo-libro"><?= htmlspecialchars($libro['Nombre']) ?></p>
+                        <ul class="lista-características">
+                            <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor'] ?? 'Desconocido') ?></li>
+                            <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas'] ?? 'Desconocido') ?></li>
+                            <li><b>Año:</b> <?= htmlspecialchars($libro['Año'] ?? 'Desconocido') ?></li>
+                            <li><b>Género:</b> <?= htmlspecialchars($libro['Genero'] ?? 'Desconocido') ?></li>
+                            <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial'] ?? 'Desconocido') ?></li>
+                            <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar'] ?? 'Desconocido') ?></li>
+                        </ul>
+                        <div class="sintesis">
+                            <p>"<?= htmlspecialchars($libro['Sinopsis'] ?? 'Sin sinopsis disponible.') ?>"</p>
+                        </div>
+                        <div class="buttons">
+                            <form action="libros.php" method="POST">
+                                <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+                                <input type="hidden" name="libro_id" value="<?= htmlspecialchars($libro['id_Libro']) ?>">
+                                <!-- ID del libro dinámico -->
+                                <input class="btn-solicitar" type="submit" value="Solicitar Préstamo"
+                                    onclick="return confirm('¿Estás seguro de que deseas solicitar este préstamo?')">
+                            </form>
+                        </div>
                     </div>
-                    <p class="titulo-libro"><?= htmlspecialchars($libro['Nombre']) ?></p>
-                    <ul class="lista-características">
-                        <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor']) ?></li>
-                        <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas']) ?></li>
-                        <li><b>Año:</b> <?= htmlspecialchars($libro['Ano']) ?></li>
-                        <li><b>Género:</b> <?= htmlspecialchars($libro['Genero']) ?></li>
-                        <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial']) ?></li>
-                        <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar']) ?></li>
-                    </ul>
-            
-                    <div class="sintesis">
-                        <p>"<?= htmlspecialchars($libro['Sinopsis'] ?? 'Sin sinopsis disponible.') ?>"</p>
-                    </div>
-            
-                    <div class="buttons">
-                        <form action="prestamos.php" method="POST">
-                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
-                            <input type="hidden" name="libro_id" value="<?= $libro['id_Libro'] ?>"> <!-- ID del libro dinámico -->
-                            <input class="btn-solicitar" type="submit" value="Solicitar Préstamo">
-                        </form>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
 
         </div>

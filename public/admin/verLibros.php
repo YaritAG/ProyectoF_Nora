@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 
 session_start();
 
-// Validación de sesión
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: ../../templates/menu.php');
     exit;
@@ -14,24 +13,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 require 'db.php';
 $conn = getConexion();
 
-// Variables iniciales
 $libroEdit = null;
 $añoActual = date('Y');
-$anios = range($añoActual, 1000); // Ajustar rango para años antiguos
+$anios = range($añoActual, 1000);
 
-// Obtener géneros
 $queryGeneros = "SELECT id_Genero, Nombre FROM tgenero ORDER BY Nombre ASC";
 $stmtGeneros = $conn->prepare($queryGeneros);
 $stmtGeneros->execute();
 $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
-// Obtener autores
 $queryAutores = "SELECT id_Autor, Nombre FROM tautor ORDER BY Nombre ASC";
 $stmtAutores = $conn->prepare($queryAutores);
 $stmtAutores->execute();
 $autores = $stmtAutores->fetchAll(PDO::FETCH_ASSOC);
 
-// Cargar datos del libro para edición
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'editar') {
     $id = intval($_GET['id'] ?? 0);
     if ($id) {
@@ -51,17 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
         $libroEdit = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($libroEdit) {
-            $autoresSeleccionados = explode(',', $libroEdit['autores'] ?? '');
-            $libroEdit['autor'] = $autoresSeleccionados[0] ?? null;
-            $libroEdit['autor_extra'] = $autoresSeleccionados[1] ?? null;
-
-            $generosSeleccionados = explode(',', $libroEdit['generos'] ?? '');
-            $libroEdit['generos'] = $generosSeleccionados;
+            $libroEdit['autor'] = explode(',', $libroEdit['autores'])[0] ?? null;
+            $libroEdit['autor_extra'] = explode(',', $libroEdit['autores'])[1] ?? null;
+            $libroEdit['generos'] = explode(',', $libroEdit['generos']) ?? [];
         }
     }
 }
 
-// Guardar, actualizar o eliminar datos del libro
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion = $_POST['accion'] ?? '';
     $id = intval($_POST['id'] ?? 0);
@@ -73,111 +64,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $paginas = intval($_POST['paginas']);
         $año = intval($_POST['año']);
         $sintesis = trim($_POST['sintesis']);
+        $generoIds = $_POST['genero'] ?? [];
         $autorPrincipal = $_POST['autor'][0] ?? null;
         $autorSecundario = $_POST['autor'][1] ?? null;
-        $generoIds = isset($_POST['genero']) && is_array($_POST['genero']) ? $_POST['genero'] : [];
 
-        // Validación del año
-        if ($año < 1000 || $año > date('Y')) {
-            $_SESSION['mensaje'] = "El año debe estar entre 1000 y el año actual.";
-            header('Location: verLibros.php');
-            exit;
-        }
+        try {
+            $conn->beginTransaction();
 
-        if ($id) {
-            // Actualizar libro
-            $query = "UPDATE tlibros SET Nombre = ?, Ejemplar = ?, Editorial = ?, Paginas = ?, Año = ?, Sintesis = ? WHERE id_Libro = ?";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año, $sintesis, $id]);
+            if ($id) {
+                $query = "UPDATE tlibros SET Nombre = ?, Ejemplar = ?, Editorial = ?, Paginas = ?, Año = ?, Sintesis = ? WHERE id_Libro = ?";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año, $sintesis, $id]);
+            } else {
+                $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Paginas, Año, Sintesis) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año, $sintesis]);
+                $id = $conn->lastInsertId();
+            }
 
-            // Actualizar autores
             $query = "DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?";
             $stmt = $conn->prepare($query);
             $stmt->execute([$id]);
 
             if ($autorPrincipal) {
-                $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
-                $stmt = $conn->prepare($query);
+                $stmt = $conn->prepare("INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)");
                 $stmt->execute([$id, $autorPrincipal]);
             }
             if ($autorSecundario) {
-                $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
-                $stmt = $conn->prepare($query);
+                $stmt = $conn->prepare("INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)");
                 $stmt->execute([$id, $autorSecundario]);
             }
 
-            // Actualizar géneros
             $query = "DELETE FROM tlibros_has_tgenero WHERE TLibros_id_Libro = ?";
             $stmt = $conn->prepare($query);
             $stmt->execute([$id]);
 
             foreach ($generoIds as $generoId) {
-                $query = "INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)";
-                $stmt = $conn->prepare($query);
+                $stmt = $conn->prepare("INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)");
                 $stmt->execute([$id, $generoId]);
             }
-        } else {
-            // Insertar nuevo libro
-            $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Paginas, Año, Sintesis) VALUES (?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año, $sintesis]);
 
-            $idLibro = $conn->lastInsertId();
-
-            if ($autorPrincipal) {
-                $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
-                $stmt = $conn->prepare($query);
-                $stmt->execute([$idLibro, $autorPrincipal]);
-            }
-            if ($autorSecundario) {
-                $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
-                $stmt = $conn->prepare($query);
-                $stmt->execute([$idLibro, $autorSecundario]);
-            }
-
-            foreach ($generoIds as $generoId) {
-                $query = "INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)";
-                $stmt = $conn->prepare($query);
-                $stmt->execute([$idLibro, $generoId]);
-            }
+            $conn->commit();
+        } catch (Exception $e) {
+            $conn->rollBack();
+            $_SESSION['mensaje'] = "Error: " . $e->getMessage();
         }
+
         header('Location: verLibros.php');
         exit;
     } elseif ($accion === 'borrar') {
         if ($id) {
-            try {
-                $conn->beginTransaction();
+            $conn->beginTransaction();
+            $stmt = $conn->prepare("DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?");
+            $stmt->execute([$id]);
 
-                // Eliminar relaciones en `tlibros_has_tgenero`
-                $query = "DELETE FROM tlibros_has_tgenero WHERE TLibros_id_Libro = ?";
-                $stmt = $conn->prepare($query);
-                $stmt->execute([$id]);
+            $stmt = $conn->prepare("DELETE FROM tlibros_has_tgenero WHERE TLibros_id_Libro = ?");
+            $stmt->execute([$id]);
 
-                // Eliminar relaciones en `tautor_has_tlibros`
-                $query = "DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?";
-                $stmt = $conn->prepare($query);
-                $stmt->execute([$id]);
+            $stmt = $conn->prepare("DELETE FROM tlibros WHERE id_Libro = ?");
+            $stmt->execute([$id]);
+            $conn->commit();
 
-                // Eliminar el libro
-                $query = "DELETE FROM tlibros WHERE id_Libro = ?";
-                $stmt = $conn->prepare($query);
-                $stmt->execute([$id]);
-
-                $conn->commit();
-                $_SESSION['mensaje'] = "Libro eliminado correctamente.";
-            } catch (Exception $e) {
-                $conn->rollBack();
-                $_SESSION['mensaje'] = "Error al eliminar el libro: " . $e->getMessage();
-            }
-        } else {
-            $_SESSION['mensaje'] = "ID del libro no válido.";
+            $_SESSION['mensaje'] = "Libro eliminado.";
         }
         header('Location: verLibros.php');
         exit;
     }
 }
 
-// Consulta para mostrar la tabla
 $query = "
     SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar,
            l.Editorial AS editorial, l.Paginas AS paginas, l.Año AS año,
@@ -388,36 +342,40 @@ include '../../templates/a.php';
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($libros as $libro): ?>
+                        <?php foreach ($libros as $libro): ?>
                             <tr>
+                                <td><?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?></td>
+                                <td><?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
+                                <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
+                                <td><?= htmlspecialchars($libro['editorial'] ?? 'Sin Editorial') ?></td>
+                                <td><?= htmlspecialchars($libro['generos'] ?? 'Sin Género') ?></td>
+                                <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
+                                <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
+                                <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
+                                <td><?= htmlspecialchars($libro['sintesis'] ?? 'Sin Síntesis') ?></td>
                                 <td>
-                                    <?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
-                                        <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
-                                        <td><?= htmlspecialchars($libro['editorial'] ?? 'Sin Editorial') ?></td>
-                                        <td><?= htmlspecialchars($libro['generos'] ?? 'Sin Género') ?></td>
-                                        <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
-                                        <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
-                                        <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
-                                        <td><?= htmlspecialchars($libro['sintesis'] ?? 'Sin Síntesis') ?></td>
-                                        <td>
-                                            <form action="verLibros.php" method="GET" style="display: inline;">
-                                                <input type="hidden" name="accion" value="editar">
-                                                <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
-                                    <button type="submit" class="btn-editar">Editar</button>
+                                    <!-- Botón de editar -->
+                                    <form action="verLibros.php" method="GET" style="display: inline;">
+                                        <input type="hidden" name="accion" value="editar">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
+                                        <button type="submit" class="btn-editar">Editar</button>
                                     </form><br><br>
-                
+
+                                    <!-- Botón de borrar -->
                                     <form action="verLibros.php" method="POST" style="display: inline;">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
                                         <button type="submit" name="accion" value="borrar" class="btn-borrar"
                                             onclick="return confirm('¿Estás seguro de que deseas borrar este libro?')">Borrar</button>
                                     </form><br><br>
 
-                                    
-                                    <form action="verLibros.php" method="POST" style="display: inline;">
-                                        <button type="submit" name="accion" value="enviar" class="send-form"
-                                            onclick="return confirm('¿Estás seguro de que deseas enviar este libro?')">Enviar</button>
+                                    <!-- Botón de enviar a la sección de libros.php -->
+                                    <form action="../user/libros.php" method="POST">
+                                        <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>"> <!-- Usuario logueado -->
+                                        <input type="hidden" name="libro_id" value="<?= $libro['id'] ?>"> <!-- ID del libro -->
+                                        <button type="submit" class="btn-enviar" 
+                                            onclick="return confirm('¿Estás seguro de que deseas enviar este libro?')">
+                                            Enviar Libro
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
