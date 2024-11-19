@@ -25,6 +25,7 @@
             <a href="ventanaAdmin.php" class="btn-admin">Menu de Admin</a>
             <a href="verUsuarios.php" class="btn-users">Ver Usuarios</a>
             <a href="verGeneros.php" class="btn-generos">Ver Géneros</a>
+            <a href="verAutores.php" class="btn-autores">Ver Autores</a>
         </div>
 
         <div class="logout">

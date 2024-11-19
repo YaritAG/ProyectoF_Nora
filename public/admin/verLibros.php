@@ -2,8 +2,10 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 session_start();
 
+// Validación de sesión
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: ../../templates/menu.php');
     exit;
@@ -12,23 +14,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 require 'db.php';
 $conn = getConexion();
 
+// Variables iniciales
 $libroEdit = null;
 $añoActual = date('Y');
 $anios = range($añoActual, 1600);
 
-// Obtener géneros para el selector
+// Obtener géneros
 $queryGeneros = "SELECT id_Genero, Nombre FROM tgenero ORDER BY Nombre ASC";
 $stmtGeneros = $conn->prepare($queryGeneros);
 $stmtGeneros->execute();
 $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
-// Obtener autores para el selector
+// Obtener autores
 $queryAutores = "SELECT id_Autor, Nombre FROM tautor ORDER BY Nombre ASC";
 $stmtAutores = $conn->prepare($queryAutores);
 $stmtAutores->execute();
 $autores = $stmtAutores->fetchAll(PDO::FETCH_ASSOC);
 
-// Manejo de edición
+// Cargar datos del libro para edición
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'editar') {
     $id = intval($_GET['id'] ?? 0);
     if ($id) {
@@ -45,10 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
         $libroEdit = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($libroEdit) {
-            $autores = explode(',', $libroEdit['autores']);
-            $libroEdit['autor'] = $autores[0] ?? null;
-            $libroEdit['autor_extra'] = $autores[1] ?? null;
-            $libroEdit['mas_autores'] = count($autores) > 1;
+            $autoresSeleccionados = explode(',', $libroEdit['autores']);
+            $libroEdit['autor'] = $autoresSeleccionados[0] ?? null;
+            $libroEdit['autor_extra'] = $autoresSeleccionados[1] ?? null;
         }
     }
 }
@@ -65,10 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $autorSecundario = $_POST['autor'][1] ?? null;
 
     if ($id) {
+        // Actualizar libro
         $query = "UPDATE tlibros SET Nombre = ?, Ejemplar = ?, Editorial = ?, Paginas = ?, Año = ? WHERE id_Libro = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año, $id]);
 
+        // Actualizar autores
         $query = "DELETE FROM tautor_has_tlibros WHERE TLibros_id_Libro = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id]);
@@ -83,9 +87,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
             $stmt = $conn->prepare($query);
             $stmt->execute([$id, $autorSecundario]);
         }
+    } else {
+        // Insertar nuevo libro
+        $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Paginas, Año) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$nombre, $ejemplar, $editorial, $paginas, $año]);
+
+        $idLibro = $conn->lastInsertId();
+
+        if ($autorPrincipal) {
+            $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$idLibro, $autorPrincipal]);
+        }
+        if ($autorSecundario) {
+            $query = "INSERT INTO tautor_has_tlibros (TLibros_id_Libro, TAutor_id_Autor) VALUES (?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$idLibro, $autorSecundario]);
+        }
     }
+    header('Location: verLibros.php');
+    exit;
 }
 
+// Obtener libros para la tabla
 $query = "
     SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar,
            l.Editorial AS editorial, l.Paginas AS paginas, l.Año AS año,
@@ -99,6 +124,7 @@ $stmt = $conn->prepare($query);
 $stmt->execute();
 $libros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Incluir el HTML
 include '../../templates/a.php';
 ?>
 
@@ -127,7 +153,6 @@ include '../../templates/a.php';
                 </form>
             </div>
 
-            <?php if ($libroEdit): ?>
             <!-- Formulario para agregar o editar un libro -->
             <div class="inputs">
 
@@ -189,16 +214,15 @@ include '../../templates/a.php';
 
                             <div class="seccion-3">
                                 <!-- Autor Principal -->
-                                <label for="autor">Autor Principal:</label>
                                 <select class="input-editor" id="autor" name="autor[]" required>
                                     <option value="">Selecciona un autor</option>
                                     <?php foreach ($autores as $autor): ?>
-                                        <option value="<?= $autor['id_Autor'] ?>" <?= isset($libroEdit['autor']) && in_array($autor['id_Autor'], explode(',', $libroEdit['autor'])) ? 'selected' : '' ?>>
+                                        <option value="<?= $autor['id_Autor'] ?>" <?= isset($libroEdit['autor']) && $libroEdit['autor'] == $autor['id_Autor'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($autor['Nombre']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select><br><br>
-                            
+                                                            
                                 <!-- Checkbox para indicar si hay más autores -->
                                 <label>
                                     <input type="checkbox" id="mas_autores" name="mas_autores" <?= isset($libroEdit['mas_autores']) && $libroEdit['mas_autores'] ? 'checked' : '' ?> onchange="toggleSegundoAutor()">
@@ -221,8 +245,11 @@ include '../../templates/a.php';
 
                             <!-- Botones -->
                             <div class="buttons">
-                                <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button>
-                                <button class="btn-cancel" type="reset">Cancelar</button>
+                                <!-- Botón para guardar -->
+                                <button class="btn-save" type="submit" name="accion" value="actualizar">Guardar</button><br>
+
+                                <!-- Botón para cancelar y limpiar el formulario -->
+                                <button type="button" class="btn-cancel" onclick="resetForm('editor-form')">Cancelar</button>
                             </div>
                         </form>
                 </div>
@@ -252,7 +279,6 @@ include '../../templates/a.php';
                 });
             </script>
             
-            <?php else: ?>
             <!-- Tabla de libros -->    
             <div class="table-wrapper" id="tabla-libros">
                 <table>
@@ -281,11 +307,14 @@ include '../../templates/a.php';
                                 <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
                                 <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
                                 <td>
-                                    <!-- Enlace para editar -->
-                                    <a href="verLibros.php?accion=editar&id=<?= htmlspecialchars($libro['id']) ?>"
-                                        class="btn-editar">Editar</a>
-                
-                                    <!-- Formulario para borrar -->
+                                    <!-- Botón Editar -->
+                                    <form action="verLibros.php" method="GET" style="display: inline;">
+                                        <input type="hidden" name="accion" value="editar">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
+                                        <button type="submit" class="btn-editar">Editar</button>
+                                    </form>
+
+                                    <!-- Boton de borrar -->
                                     <form action="verLibros.php" method="POST" style="display: inline;">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
                                         <button type="submit" name="accion" value="borrar" class="btn-borrar">Borrar</button>
@@ -295,9 +324,7 @@ include '../../templates/a.php';
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-
             </div>
-            <?php endif; ?>
         </div>
     </div>
 </body>
