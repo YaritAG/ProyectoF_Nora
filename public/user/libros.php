@@ -4,38 +4,39 @@ require '../admin/db.php'; // Conexión a la base de datos
 
 $conn = getConexion();
 
-// Verificar si el usuario está logueado
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../user/login.php');
-    exit;
+// Inicializar la lista de libros seleccionados
+if (!isset($_SESSION['librosSeleccionados'])) {
+    $_SESSION['librosSeleccionados'] = [];
 }
 
-// Leer todos los géneros que fueron enviados
-$stmtGeneros = $conn->prepare("SELECT id_Genero, Nombre, Descripcion, Imagen FROM tgenero WHERE Agregado = 1 ORDER BY Nombre ASC");
-$stmtGeneros->execute();
-$generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
+// Verificar si se recibió un libro mediante POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['libro_id'])) {
+    $libroId = intval($_POST['libro_id']);
 
-// Leer todos los libros asociados con cada género
-$stmtLibros = $conn->prepare("
-    SELECT l.id_Libro, l.Nombre, l.Ejemplar, l.Editorial, l.Paginas, l.Año, l.Sintesis AS Sinopsis,
-           g.Nombre AS Genero, a.Nombre AS Autor, g.id_Genero
-    FROM tlibros l
-    LEFT JOIN tautor_has_tlibros al ON l.id_Libro = al.TLibros_id_Libro
-    LEFT JOIN tautor a ON al.TAutor_id_Autor = a.id_Autor
-    LEFT JOIN tlibros_has_tgenero lg ON l.id_Libro = lg.TLibros_id_Libro
-    LEFT JOIN tgenero g ON lg.TGenero_id_Genero = g.id_Genero
-    WHERE g.Agregado = 1
-    ORDER BY g.Nombre ASC
-");
-$stmtLibros->execute();
-$libros = $stmtLibros->fetchAll(PDO::FETCH_ASSOC);
+    // Consultar los detalles del libro por ID
+    $stmt = $conn->prepare("
+        SELECT l.id_Libro, l.Nombre, l.Ejemplar, l.Editorial, l.Paginas, l.Año, l.Sintesis AS Sinopsis,
+               g.Nombre AS Genero, a.Nombre AS Autor
+        FROM tlibros l
+        LEFT JOIN tautor_has_tlibros al ON l.id_Libro = al.TLibros_id_Libro
+        LEFT JOIN tautor a ON al.TAutor_id_Autor = a.id_Autor
+        LEFT JOIN tlibros_has_tgenero lg ON l.id_Libro = lg.TLibros_id_Libro
+        LEFT JOIN tgenero g ON lg.TGenero_id_Genero = g.id_Genero
+        WHERE l.id_Libro = :libro_id
+    ");
+    $stmt->bindParam(':libro_id', $libroId);
+    $stmt->execute();
+    $libroSeleccionado = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Agrupar los libros por género
-$librosPorGenero = [];
-foreach ($libros as $libro) {
-    $librosPorGenero[$libro['id_Genero']][] = $libro;
+    // Si el libro se encontró, agregarlo a la lista en la sesión
+    if ($libroSeleccionado) {
+        $_SESSION['librosSeleccionados'][] = $libroSeleccionado;
+    } else {
+        $_SESSION['mensaje'] = "El libro no se encontró en la base de datos.";
+    }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -72,35 +73,35 @@ foreach ($libros as $libro) {
             <div class="seccion-libro">
                 <h3>Género de Fantasía</h3>
                     <div class="libro">
-                    <div class="seccion-imagen">
-                        <img src="../../assets/imgs/menu/magodeoz.jpg" alt="" class="img-libro">
-                    </div>    
-                        <p class="titulo-libro">El Maravilloso Mundo del Mago de OZ</p>
-                        <ul class="lista-características">
-                            <li><b>Autor:</b></li>
-                            <li><b>Páginas:</b></li>
-                            <li><b>Año:</b></li>
-                            <li><b>Género:</b></li>
-                            <li><b>Editorial:</b></li>
-                            <li><b>Ejemplares:</b></li>
-                        </ul>
+                        <div class="seccion-imagen">
+                            <img src="../../assets/imgs/menu/magodeoz.jpg" alt="" class="img-libro">
+                        </div>    
+                            <p class="titulo-libro">El Maravilloso Mundo del Mago de OZ</p>
+                            <ul class="lista-características">
+                                <li><b>Autor:</b></li>
+                                <li><b>Páginas:</b></li>
+                                <li><b>Año:</b></li>
+                                <li><b>Género:</b></li>
+                                <li><b>Editorial:</b></li>
+                                <li><b>Ejemplares:</b></li>
+                            </ul>
 
-                        <div class="sintesis">
-                            <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
-                                dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
-                                proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+                            <div class="sintesis">
+                                <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
+                                    dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
+                                    proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+                            </div>
+
+                        <div class="buttons">
+                            <form action="prestamos.php" method="POST">
+                                <!-- ID del usuario -->
+                                <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+                                <!-- ID del libro -->
+                                <input type="hidden" name="libro_id" value="1"> <!-- Cambiar a ID dinámico del libro -->
+                                <input class="btn-solicitar" type="submit" value="Solicitar Préstamo">
+                            </form>
                         </div>
-
-                    <div class="buttons">
-                        <form action="prestamos.php" method="POST">
-                            <!-- ID del usuario -->
-                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
-                            <!-- ID del libro -->
-                            <input type="hidden" name="libro_id" value="1"> <!-- Cambiar a ID dinámico del libro -->
-                            <input class="btn-solicitar" type="submit" value="Solicitar Préstamo">
-                        </form>
-                    </div>
 
                     </div>
 
@@ -188,44 +189,50 @@ foreach ($libros as $libro) {
                     </div>
             </div>
 
-               <!-- Listado de géneros -->
-            <?php if (empty($generos)): ?>
-                <p>No hay géneros disponibles en este momento.</p>
-            <?php else: ?>
-                <?php foreach ($generos as $genero): ?>
-                    <div class="seccion-genero">
-                        <h2><?= htmlspecialchars($genero['Nombre']) ?></h2>
-                        <p><?= nl2br(htmlspecialchars($genero['Descripcion'])) ?></p>
+            <?php if (!empty($_SESSION['librosSeleccionados'])): ?>
+                <?php foreach ($_SESSION['librosSeleccionados'] as $libro): ?>
+                    <div class="seccion-libro">
+                        <h3>Género de <?= htmlspecialchars($libro['Genero']) ?></h3>
             
-                        <?php if (!empty($genero['Imagen'])): ?>
-                            <img src="../../<?= htmlspecialchars($genero['Imagen']) ?>" alt="<?= htmlspecialchars($genero['Nombre']) ?>"
-                                class="imagen-genero">
-                        <?php endif; ?>
+                        <div class="libro">
+                            <!-- Imagen del libro -->
+                            <img src="" alt="<?= htmlspecialchars($libro['Nombre']) ?>" class="img-libro">
             
-                        <!-- Listado de libros por género -->
-                        <?php if (!empty($librosPorGenero[$genero['id_Genero']])): ?>
-                            <div class="seccion-libros">
-                                <?php foreach ($librosPorGenero[$genero['id_Genero']] as $libro): ?>
-                                    <div class="libro-item">
-                                        <h3><?= htmlspecialchars($libro['Nombre']) ?></h3>
-                                        <ul>
-                                            <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor']) ?></li>
-                                            <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas']) ?></li>
-                                            <li><b>Año:</b> <?= htmlspecialchars($libro['Año']) ?></li>
-                                            <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial']) ?></li>
-                                            <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar']) ?></li>
-                                        </ul>
-                                        <p><b>Sinopsis:</b> <?= htmlspecialchars($libro['Sinopsis']) ?></p>
-                                    </div>
-                                <?php endforeach; ?>
+                            <!-- Título del libro -->
+                            <p class="titulo-libro"><?= htmlspecialchars($libro['Nombre']) ?></p>
+            
+                            <!-- Lista de características -->
+                            <ul class="lista-características">
+                                <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor']) ?></li>
+                                <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas']) ?></li>
+                                <li><b>Año:</b> <?= htmlspecialchars($libro['Año']) ?></li>
+                                <li><b>Género:</b> <?= htmlspecialchars($libro['Genero']) ?></li>
+                                <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial']) ?></li>
+                                <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar']) ?></li>
+                            </ul>
+            
+                            <!-- Sinopsis del libro -->
+                            <div class="sintesis">
+                                <p><?= htmlspecialchars($libro['Sinopsis']) ?></p>
                             </div>
-                        <?php else: ?>
-                            <p>No hay libros disponibles para este género.</p>
-                        <?php endif; ?>
+
+                            <div class="buttons">
+                                <form action="prestamos.php" method="POST">
+                                    <!-- ID del libro -->
+                                <input type="hidden" name="libro_id" value="<?= htmlspecialchars($libro['id_Libro']) ?>">
+                                        <!-- Cambiar a ID dinámico del libro -->
+                                    <button type="submit" class="btn-solicitar"
+                                        onclick="return confirm('¿Estás seguro de que deseas solicitar este préstamo?')">
+                                        Solicitar Préstamo
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 <?php endforeach; ?>
+            <?php else: ?>
+                <p>No hay libros seleccionados todavía.</p>
             <?php endif; ?>
-
         </div>
     </div>
 </html>

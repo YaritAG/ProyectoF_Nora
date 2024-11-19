@@ -368,12 +368,9 @@ include '../../templates/a.php';
                                             onclick="return confirm('¿Estás seguro de que deseas borrar este libro?')">Borrar</button>
                                     </form><br><br>
 
-                                    <!-- Botón de enviar a la sección de libros.php -->
                                     <form action="../user/libros.php" method="POST">
-                                        <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>"> <!-- Usuario logueado -->
-                                        <input type="hidden" name="libro_id" value="<?= $libro['id'] ?>"> <!-- ID del libro -->
-                                        <button type="submit" class="btn-enviar" 
-                                            onclick="return confirm('¿Estás seguro de que deseas enviar este libro?')">
+                                        <input type="hidden" name="libro_id" value="<?= htmlspecialchars($libro['id']) ?>"> <!-- ID del libro -->
+                                        <button type="submit" class="btn-enviar" onclick="return confirm('¿Estás seguro de que deseas enviar este libro?')">
                                             Enviar Libro
                                         </button>
                                     </form>
