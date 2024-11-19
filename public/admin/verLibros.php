@@ -55,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
     }
 }
 
-// Procesar actualización o creación
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'actualizar') {
     $id = intval($_POST['id'] ?? 0);
     $nombre = trim($_POST['nombre']);
@@ -65,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $año = intval($_POST['año']);
     $autorPrincipal = $_POST['autor'][0] ?? null;
     $autorSecundario = $_POST['autor'][1] ?? null;
+    $generoIds = $_POST['genero'] ?? []; // Géneros seleccionados
 
     if ($id) {
         // Actualizar libro
@@ -87,6 +87,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
             $stmt = $conn->prepare($query);
             $stmt->execute([$id, $autorSecundario]);
         }
+
+        // Actualizar géneros: Limpiar géneros antiguos y agregar nuevos
+        $query = "DELETE FROM tlibros_has_tgenero WHERE TLibros_id_Libro = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$id]);
+
+        foreach ($generoIds as $generoId) {
+            $query = "INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$id, $generoId]);
+        }
     } else {
         // Insertar nuevo libro
         $query = "INSERT INTO tlibros (Nombre, Ejemplar, Editorial, Paginas, Año) VALUES (?, ?, ?, ?, ?)";
@@ -105,22 +116,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
             $stmt = $conn->prepare($query);
             $stmt->execute([$idLibro, $autorSecundario]);
         }
+
+        foreach ($generoIds as $generoId) {
+            $query = "INSERT INTO tlibros_has_tgenero (TLibros_id_Libro, TGenero_id_Genero) VALUES (?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$idLibro, $generoId]);
+        }
     }
     header('Location: verLibros.php');
     exit;
 }
 
-// Obtener libros para la tabla
 $query = "
     SELECT l.id_Libro AS id, l.Nombre AS nombre, l.Ejemplar AS ejemplar,
            l.Editorial AS editorial, l.Paginas AS paginas, l.Año AS año,
-           GROUP_CONCAT(a.Nombre SEPARATOR ', ') AS autores
+           GROUP_CONCAT(DISTINCT a.Nombre SEPARATOR ', ') AS autores,
+           GROUP_CONCAT(DISTINCT g.Nombre SEPARATOR ', ') AS generos
     FROM tlibros l
     LEFT JOIN tautor_has_tlibros la ON l.id_Libro = la.TLibros_id_Libro
     LEFT JOIN tautor a ON la.TAutor_id_Autor = a.id_Autor
-    GROUP BY l.id_Libro
-    ORDER BY l.Nombre ASC";
+    LEFT JOIN tlibros_has_tgenero lg ON l.id_Libro = lg.TLibros_id_Libro
+    LEFT JOIN tgenero g ON lg.TGenero_id_Genero = g.id_Genero
+    WHERE 1 = 1
+";
+
+if (!empty($_GET['query'])) {
+    $query .= " AND (
+        l.Nombre LIKE :search OR
+        l.Ejemplar LIKE :search OR
+        l.Editorial LIKE :search OR
+        l.Año LIKE :search OR
+        g.Nombre LIKE :search OR
+        a.Nombre LIKE :search
+    )";
+}
+
+$query .= " GROUP BY l.id_Libro ORDER BY l.Nombre ASC";
+
 $stmt = $conn->prepare($query);
+
+if (!empty($_GET['query'])) {
+    $searchTerm = '%' . $_GET['query'] . '%';
+    $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
+}
+
 $stmt->execute();
 $libros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -147,7 +186,7 @@ include '../../templates/a.php';
                       
             <!-- Buscador con método GET para obtener datos -->    
             <div class="seccion-buscador">
-                <form method="GET" action="verUsuarios.php">
+                <form method="GET" action="verLibros.php">
                     <input type="text" class="buscador" placeholder="Buscar..." name="query" aria-label="Buscar">
                     <button class="lupa" type="submit"><i class="fas fa-search"></i></button>
                 </form>
@@ -296,33 +335,32 @@ include '../../templates/a.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($libros as $libro): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?></td>
-                                <td><?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
-                                <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
-                                <td><?= htmlspecialchars($libro['editorial'] ?? 'Sin Editorial') ?></td>
-                                <td><?= htmlspecialchars($libro['genero'] ?? 'Sin Género') ?></td>
-                                <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
-                                <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
-                                <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
-                                <td>
-                                    <!-- Botón Editar -->
-                                    <form action="verLibros.php" method="GET" style="display: inline;">
-                                        <input type="hidden" name="accion" value="editar">
-                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
-                                        <button type="submit" class="btn-editar">Editar</button>
-                                    </form>
+                    <?php foreach ($libros as $libro): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($libro['id'] ?? 'Sin ID') ?></td>
+                            <td><?= htmlspecialchars($libro['nombre'] ?? 'Sin Nombre') ?></td>
+                            <td><?= htmlspecialchars($libro['ejemplar'] ?? 'Sin Ejemplares') ?></td>
+                            <td><?= htmlspecialchars($libro['editorial'] ?? 'Sin Editorial') ?></td>
+                            <td><?= htmlspecialchars($libro['generos'] ?? 'Sin Género') ?></td>
+                            <td><?= htmlspecialchars($libro['paginas'] ?? 'Sin Páginas') ?></td>
+                            <td><?= htmlspecialchars($libro['año'] ?? 'Sin Año') ?></td>
+                            <td><?= nl2br(htmlspecialchars($libro['autores'] ?? 'Sin Autor')) ?></td>
+                            <td>
+                                <!-- Botones de acción -->
+                                <form action="verLibros.php" method="GET" style="display: inline;">
+                                    <input type="hidden" name="accion" value="editar">
+                                    <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
+                                    <button type="submit" class="btn-editar">Editar</button>
+                                </form>
 
-                                    <!-- Boton de borrar -->
-                                    <form action="verLibros.php" method="POST" style="display: inline;">
-                                        <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
-                                        <button type="submit" name="accion" value="borrar" class="btn-borrar">Borrar</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                                <form action="verLibros.php" method="POST" style="display: inline;">
+                                    <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
+                                    <button type="submit" name="accion" value="borrar" class="btn-borrar">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
                 </table>
             </div>
         </div>
