@@ -13,6 +13,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 require 'db.php'; // Archivo de conexión a la base de datos
 $conn = getConexion();
 
+require_once 'ini.php';
+
+// Verificar si el usuario está logueado (si es necesario para esta página)
+verificarSesion();
+
+
 // Inicialización de variables
 $id = $genero = $descripcion = $imagenRuta = "";
 $accion = $_POST['accion'] ?? "";

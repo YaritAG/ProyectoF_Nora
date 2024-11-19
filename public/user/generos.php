@@ -11,7 +11,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: ../../templates/menu.php');
     exit;
 }
-
 $conn = getConexion();
 
 // Consultar los géneros que han sido agregados (Agregado = 1)

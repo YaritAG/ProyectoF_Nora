@@ -2,6 +2,11 @@
 require 'db.php'; // Archivo de conexión a la base de datos
 $conn = getConexion(); // Obtener la conexión PDO
 
+require_once 'ini.php';
+
+// Verificar si el usuario está logueado (si es necesario para esta página)
+verificarSesion();
+
 // Variable para mensajes
 $error = null;
 $success = null;

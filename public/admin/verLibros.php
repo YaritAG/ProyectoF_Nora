@@ -13,6 +13,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 require 'db.php';
 $conn = getConexion();
 
+require_once 'ini.php';
+
+// Verificar si el usuario está logueado (si es necesario para esta página)
+verificarSesion();
+
 $libroEdit = null;
 $añoActual = date('Y');
 $anios = range($añoActual, 1000);
