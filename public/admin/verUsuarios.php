@@ -186,30 +186,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                       <tbody>
-                        <?php
-                        // Recorre los resultados y crea una fila para cada usuario
-                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                            echo "<tr>";
-                            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['apellido']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['correo']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['password']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['rol']) . "</td>";
-                            echo "<td>
-                                        <form method='POST' action='verUsuarios.php' style='display:inline;'>
-                                            <input type='hidden' name='id' value='" . $row['id'] . "'>
+                        <tbody>
+                            <?php
+                            // Recorre los resultados y crea una fila para cada usuario
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<tr>";
+                                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['apellido']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['correo']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['password']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['rol']) . "</td>";
+                                echo "<td>
+                                        <form method='POST' action='verUsuarios.php' style='display:inline;' onsubmit='return confirmarBorrado();'>
+                                            <input type='hidden' name='id' value='" . htmlspecialchars($row['id']) . "'>
                                             <button type='submit' name='accion' value='eliminar' class='btn-borrar'>Borrar</button>
                                         </form>
-                                        <button type='button' class='btn-editar' onclick='editarUsuario(" . $row['id'] . ", `" . htmlspecialchars($row['nombre']) . "`, `" . htmlspecialchars($row['apellido']) . "`, `" . htmlspecialchars($row['correo']) . "`, `" . htmlspecialchars($row['password']) . "`, `" . htmlspecialchars($row['rol']) . "`)'>Editar</button>
+                                        <button type='button' class='btn-editar' onclick='editarUsuario(" . $row['id'] . ", `" . htmlspecialchars($row['nombre']) . "`, `" . htmlspecialchars($row['apellido']) . "`, `" . htmlspecialchars($row['correo']) . "`, `" . htmlspecialchars($row['password']) . "`, `" . htmlspecialchars($row['rol']) . "`)' >Editar</button>
                                     </td>";
-                            echo "</tr>";
-                        }
-                        ?>
-                    </tbody>
+                                echo "</tr>";
+                            }
+                            ?>
+                        </tbody>
                     </table>
                 </div>
+
+                <script>
+                    // Función para confirmar antes de eliminar
+                    function confirmarBorrado() {
+                        return confirm("¿Estás seguro de que deseas eliminar este registro?");
+                    }
+
+                    // Función para cargar los datos en el formulario de edición
+                    function editarUsuario(id, nombre, apellido, correo, password, rol) {
+                        document.getElementById('id').value = id;
+                        document.getElementById('nombre').value = nombre;
+                        document.getElementById('apellido').value = apellido;
+                        document.getElementById('correo').value = correo;
+                        document.getElementById('password').value = password;
+                        document.getElementById('rol').value = rol;
+                    }
+                </script>
+
             </div>
         </div>
     </div>

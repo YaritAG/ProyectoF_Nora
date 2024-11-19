@@ -102,11 +102,15 @@ h3 {
     grid-row-gap: 0px;
 }
 
-textarea .input-editor {
+textarea .input-editor{
     width: 400px;
     font-family: 'Quicksand';
 }
 
+#sintesis{
+    margin-left: 40px;
+    width: 250px;
+}
 label #labeldesc {
     margin-right: 10px;
 }
@@ -222,7 +226,7 @@ label #labeldesc {
 }
 
 #tabla-libros {
-    margin-top: -460px;
+    margin-top: -300px;
 }
 /* Barra de desplazamiento superior */
 .scrollbar-top {
@@ -276,6 +280,10 @@ table th {
 
 table tr:hover {
     background-color: #f9f9f9;
+}
+
+.tb-sintesis{
+    width: 600px;
 }
 
 /* Estilos generales para los botones */
@@ -349,6 +357,28 @@ table tr:hover {
     text-align: center;
 }
 
+#mensaje-alert {
+    background-color: #f8d7da;
+    /* Color de fondo */
+    color: #721c24;
+    /* Color del texto */
+    border: 1px solid #f5c6cb;
+    /* Borde */
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+    position: relative;
+    opacity: 1;
+    /* Comienza completamente visible */
+    transition: opacity 0.5s ease-out;
+    /* Transición suave */
+}
+
+.error.fade-out {
+    opacity: 0;
+    /* Se desvanece a invisible */
+}
 /* Mensaje de éxito */
 .success {
     width: auto;
