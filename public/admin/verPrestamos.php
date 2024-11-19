@@ -104,7 +104,7 @@ include '../../templates/a.php';
                                 <form method="POST" action="procesarDevolucion.php">
                                     <input type="hidden" name="prestamo_id"
                                         value="<?= htmlspecialchars($prestamo['id_Prestamo']) ?>">
-                                    <button type="submit" onclick="return confirm('¿Confirmar devolución del préstamo?')">
+                                    <button class="send-form" type="submit" onclick="return confirm('¿Confirmar devolución del préstamo?')">
                                         Marcar como Devuelto
                                     </button>
                                 </form>

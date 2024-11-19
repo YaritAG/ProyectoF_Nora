@@ -1,22 +1,40 @@
 <?php
-require '../admin/db.php'; // Archivo de conexión a la base de datos
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 session_start();
+require '../admin/db.php'; // Conexión a la base de datos
 
-// Verifica si el usuario está logueado y tiene rol de administrador
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: ../../templates/menu.php');
-    exit;
-}
 $conn = getConexion();
 
-// Consultar los géneros que han sido agregados (Agregado = 1)
-$stmt = $conn->prepare("SELECT Nombre, Descripcion, Imagen FROM tgenero WHERE Agregado = 1 ORDER BY Nombre ASC");
-$stmt->execute();
-$generos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../user/login.php');
+    exit;
+}
+
+// Leer todos los géneros que fueron enviados
+$stmtGeneros = $conn->prepare("SELECT id_Genero, Nombre, Descripcion, Imagen FROM tgenero WHERE Agregado = 1 ORDER BY Nombre ASC");
+$stmtGeneros->execute();
+$generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
+
+// Leer todos los libros asociados con cada género
+$stmtLibros = $conn->prepare("
+    SELECT l.id_Libro, l.Nombre, l.Ejemplar, l.Editorial, l.Paginas, l.Año, l.Sintesis AS Sinopsis,
+           g.Nombre AS Genero, a.Nombre AS Autor, g.id_Genero
+    FROM tlibros l
+    LEFT JOIN tautor_has_tlibros al ON l.id_Libro = al.TLibros_id_Libro
+    LEFT JOIN tautor a ON al.TAutor_id_Autor = a.id_Autor
+    LEFT JOIN tlibros_has_tgenero lg ON l.id_Libro = lg.TLibros_id_Libro
+    LEFT JOIN tgenero g ON lg.TGenero_id_Genero = g.id_Genero
+    WHERE g.Agregado = 1
+    ORDER BY g.Nombre ASC
+");
+$stmtLibros->execute();
+$libros = $stmtLibros->fetchAll(PDO::FETCH_ASSOC);
+
+// Agrupar los libros por género
+$librosPorGenero = [];
+foreach ($libros as $libro) {
+    $librosPorGenero[$libro['id_Genero']][] = $libro;
+}
 ?>
 
 <!DOCTYPE html>
@@ -153,39 +171,30 @@ $generos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </a>
                 </div>
                 
-                <div class="seccion-libro">
-                    <?php foreach ($libros as $libro): ?>
-                        <h3>Género de <?= htmlspecialchars($libro['Genero']) ?></h3>
-                        <div class="libro">
-                            <div class="seccion-imagen">
-                                <img src="../../assets/imgs/menu/<?= htmlspecialchars($libro['Nombre']) ?>.jpg" alt="" class="img-libro">
+            <?php if (!empty($generos) && is_array($generos)): ?>
+                <?php foreach ($generos as $genero): ?>
+                    <div class="sec-genero-libro">
+                        <a href="genero.php?id=<?= htmlspecialchars($genero['id_Genero']) ?>" class="link-genero">
+                            <div class="container-cards">
+                                <div class="frente">
+                                    <img src="../../<?= htmlspecialchars($genero['Imagen']) ?>"
+                                        alt="Imagen de <?= htmlspecialchars($genero['Nombre']) ?>" class="img-genero">
+                                    <div class="inner">
+                                        <p><?= htmlspecialchars($genero['Nombre']) ?></p>
+                                    </div>
+                                </div>
+                                <div class="detras">
+                                    <div class="inner">
+                                        <p><?= htmlspecialchars($genero['Descripcion'] ?? 'Sin descripción disponible.') ?></p>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="titulo-libro"><?= htmlspecialchars($libro['Nombre']) ?></p>
-                            <ul class="lista-características">
-                                <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor']) ?></li>
-                                <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas']) ?></li>
-                                <li><b>Año:</b> <?= htmlspecialchars($libro['Año']) ?></li>
-                                <li><b>Género:</b> <?= htmlspecialchars($libro['Genero']) ?></li>
-                                <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial']) ?></li>
-                                <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar']) ?></li>
-                            </ul>
-
-                            <div class="sintesis">
-                                <p>"<?= htmlspecialchars($libro['Sintesis'] ?? 'Sin sinopsis disponible.') ?>"</p>
-                            </div>
-
-                            <div class="buttons">
-                                <!-- Formulario para registrar el préstamo -->
-                                <form action="libros.php" method="POST">
-                                    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
-                                    <input type="hidden" name="libro_id" value="<?= $libro['id_Libro'] ?>"> <!-- ID del libro dinámico -->
-                                    <input class="btn-solicitar" type="submit" value="Solicitar Préstamo"
-                                        onclick="return confirm('¿Estás seguro de que deseas solicitar este libro?')">
-                                </form>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No hay géneros disponibles en este momento.</p>
+            <?php endif; ?>
             </div>
         </div>
     </div>

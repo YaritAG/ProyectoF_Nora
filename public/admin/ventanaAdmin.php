@@ -1,9 +1,4 @@
 <?php
-require_once 'ini.php';
-
-// Verificar si el usuario está logueado (si es necesario para esta página)
-verificarSesion();
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);

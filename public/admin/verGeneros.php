@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 session_start();
 
 // Verifica si el usuario está logueado y tiene rol de administrador
@@ -13,17 +14,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 require 'db.php'; // Archivo de conexión a la base de datos
 $conn = getConexion();
 
-require_once 'ini.php';
-
-// Verificar si el usuario está logueado (si es necesario para esta página)
-verificarSesion();
-
-
 // Inicialización de variables
 $id = $genero = $descripcion = $imagenRuta = "";
 $accion = $_POST['accion'] ?? "";
 $queryString = $_GET['query'] ?? "";
 
+// Cargar datos para editar género
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'editar') {
     $id = $_GET['id'] ?? null; // Captura el ID enviado por GET
     if ($id) {
@@ -41,33 +37,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
             header('Location: verGeneros.php');
             exit;
         }
-    } else {
-        $_SESSION['mensaje'] = "ID de género no válido.";
-        header('Location: verGeneros.php');
-        exit;
     }
 }
 
+// Procesar acciones POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? null;
     $genero = $_POST['genero'] ?? "";
     $descripcion = $_POST['descripcion'] ?? "";
     $imagenRuta = null;
 
-    // Manejo de la imagen
+    // Manejo de imagen subida
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $directorioSubida = '../../assets/imgs/generos/';
         if (!is_dir($directorioSubida)) {
             mkdir($directorioSubida, 0755, true);
         }
 
-        // Obtener la extensión del archivo
         $extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
-
-        // Generar el nuevo nombre basado en el nombre del género
         $nombreLimpio = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $genero)); // Limpiar caracteres especiales
         $nombreArchivo = $nombreLimpio . '.' . $extension;
-
         $rutaCompleta = $directorioSubida . $nombreArchivo;
 
         // Validar tamaño y formato de la imagen
@@ -84,9 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Mover archivo y guardar ruta
         if (move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaCompleta)) {
-            $imagenRuta = 'assets/imgs/generos/' . $nombreArchivo; // Ruta relativa que se guarda en la base de datos
+            $imagenRuta = 'assets/imgs/generos/' . $nombreArchivo;
         } else {
             $_SESSION['mensaje'] = "Error al subir la imagen.";
             header('Location: verGeneros.php');
@@ -94,10 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Guardar en la base de datos
+    // Guardar o actualizar género
     if ($accion === 'actualizar') {
         if (empty($id)) {
-            $stmt = $conn->prepare("INSERT INTO tgenero (Nombre, Descripcion, Imagen) VALUES (:nombre, :descripcion, :imagen)");
+            $stmt = $conn->prepare("INSERT INTO tgenero (Nombre, Descripcion, Imagen, Agregado) VALUES (:nombre, :descripcion, :imagen, 0)");
             $stmt->bindParam(':nombre', $genero);
             $stmt->bindParam(':descripcion', $descripcion);
             $stmt->bindParam(':imagen', $imagenRuta);
@@ -118,42 +106,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Crear o actualizar género
-    if ($accion === 'actualizar') {
-        if (empty($id)) {
-            $stmt = $conn->prepare("INSERT INTO tgenero (Nombre, Descripcion, Imagen) VALUES (:nombre, :descripcion, :imagen)");
-            $stmt->bindParam(':nombre', $genero);
-            $stmt->bindParam(':descripcion', $descripcion);
-            $stmt->bindParam(':imagen', $imagenRuta);
-            $stmt->execute();
-            $_SESSION['mensaje'] = "Género agregado correctamente.";
-        } else {
-            if ($imagenRuta) {
-                $stmt = $conn->prepare("UPDATE tgenero SET Nombre = :nombre, Descripcion = :descripcion, Imagen = :imagen WHERE id_Genero = :id");
-                $stmt->bindParam(':imagen', $imagenRuta);
-            } else {
-                $stmt = $conn->prepare("UPDATE tgenero SET Nombre = :nombre, Descripcion = :descripcion WHERE id_Genero = :id");
-            }
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':nombre', $genero);
-            $stmt->bindParam(':descripcion', $descripcion);
-            $stmt->execute();
-            $_SESSION['mensaje'] = "Género actualizado correctamente.";
-        }
-    }
-
-    // Manejo de la acción "enviar"
+    // Enviar género para mostrar en `generos.php`
     if ($accion === 'enviar') {
-        // Puedes realizar aquí la lógica adicional si es necesario, como actualizar algún estado
-        $stmt = $conn->prepare("UPDATE tgenero SET Agregado = 1 WHERE id_Genero = :id");
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+        try {
+            $stmt = $conn->prepare("UPDATE tgenero SET Agregado = 1 WHERE id_Genero = :id");
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
 
-        $_SESSION['mensaje'] = "Género enviado correctamente.";
-        header('Location: ../user/generos.php'); // Redirige a la vista de géneros de usuario
+            $_SESSION['mensaje'] = "Género enviado correctamente.";
+        } catch (PDOException $e) {
+            $_SESSION['error'] = "Error al enviar el género: " . $e->getMessage();
+        }
+
+        header('Location: verGeneros.php');
         exit;
     }
-
 
     // Eliminar género
     if ($accion === 'borrar') {
