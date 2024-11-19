@@ -118,3 +118,28 @@ h3 {
     font-size: 14px;
     line-height: 1.8;
 }
+
+.buttons {
+    width: 100%;
+    align-items: center;
+}
+
+.btn-solicitar {
+    padding: 5px 10px;
+    background-color: #24302A;
+    border: 1px solid #fff;
+    border-radius: 10px;
+    font-family: 'Quicksand';
+    text-align: center;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.btn-solicitar:hover {
+    background-color: #fff;
+    color: #000;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+

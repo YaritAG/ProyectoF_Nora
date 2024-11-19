@@ -1,6 +1,59 @@
 <?php
+// Mostrar errores en el entorno de desarrollo
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Iniciar la sesión
 session_start();
 
+// Archivo de conexión a la base de datos (solo una vez)
+require '../admin/db.php';
+
+// Verificar si el usuario está logueado y tiene el rol de administrador
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    header('Location: ../../templates/menu.php');
+    exit;
+}
+
+// Establecer la conexión a la base de datos
+$conn = getConexion();
+
+// Verificar si se envió el formulario de préstamo
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $userId = $_POST['user_id'] ?? null; // ID del usuario enviado desde el formulario
+    $libroId = $_POST['libro_id'] ?? null; // ID del libro enviado desde el formulario
+    $fechaPrestamo = date('Y-m-d H:i:s'); // Fecha actual
+
+    if ($userId && $libroId) {
+        try {
+            // Insertar el préstamo en la tabla `tprestamo`
+            $stmt = $conn->prepare("
+                INSERT INTO tprestamo (fecha_prestamo, TPersonas_id_Personas, TLibros_id_Libro, Devuelto) 
+                VALUES (:fecha_prestamo, :user_id, :libro_id, 0)
+            ");
+            $stmt->bindParam(':fecha_prestamo', $fechaPrestamo);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':libro_id', $libroId);
+            $stmt->execute();
+
+            $_SESSION['mensaje'] = "¡Préstamo registrado exitosamente!";
+        } catch (PDOException $e) {
+            $_SESSION['error'] = "Error al registrar el préstamo: " . $e->getMessage();
+        }
+    } else {
+        $_SESSION['error'] = "Hubo un error al registrar el préstamo. Verifique los datos enviados.";
+    }
+}
+
+// Redirigir a la página de préstamos y detener el script
+header('Location: prestamos.php');
+exit;
+
+// Consultar todos los libros
+$stmt = $conn->prepare("SELECT * FROM tlibros");
+$stmt->execute();
+$libros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -25,10 +78,16 @@ session_start();
             <?php include 'header-secciones.php'; ?>
         </header>
 
+        <?php if (isset($_SESSION['mensaje'])): ?>
+            <p class="mensaje"><?= $_SESSION['mensaje'] ?></p>
+            <?php unset($_SESSION['mensaje']); ?>
+        <?php endif; ?>
+        
         <div class="seccion-principal">
             <h1>Libros</h1>
             <h3>Estos son todos los libros los cuales puedes explorar</h3>
             <br>
+            
             <div class="seccion-libro">
                 <h3>Género de Fantasía</h3>
                     <div class="libro">
@@ -52,11 +111,16 @@ session_start();
                                 proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
                         </div>
 
-                        <div class="buttons">
-                            <form action="libros.php" method="POST">
-                                <input type="sumbit" value="Solicitar Préstamo">
-                            </form>
-                        </div>
+                    <div class="buttons">
+                        <form action="prestamos.php" method="POST">
+                            <!-- ID del usuario -->
+                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+                            <!-- ID del libro -->
+                            <input type="hidden" name="libro_id" value="1"> <!-- Cambiar a ID dinámico del libro -->
+                            <input class="btn-solicitar" type="submit" value="Solicitar Préstamo">
+                        </form>
+                    </div>
+
                     </div>
 
                     <div class="libro">
@@ -141,6 +205,36 @@ session_start();
                                 proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
                         </div>
                     </div>
+            </div>
+
+            <div class="seccion-libro">
+            <h3>Género de <?= htmlspecialchars($libro['Genero']) ?></h3>
+                <div class="libro">
+                    <div class="seccion-imagen">
+                        <img src="../../assets/imgs/menu/<?= htmlspecialchars($libro['Nombre']) ?>.jpg" alt="" class="img-libro">
+                    </div>
+                    <p class="titulo-libro"><?= htmlspecialchars($libro['Nombre']) ?></p>
+                    <ul class="lista-características">
+                        <li><b>Autor:</b> <?= htmlspecialchars($libro['Autor']) ?></li>
+                        <li><b>Páginas:</b> <?= htmlspecialchars($libro['Paginas']) ?></li>
+                        <li><b>Año:</b> <?= htmlspecialchars($libro['Ano']) ?></li>
+                        <li><b>Género:</b> <?= htmlspecialchars($libro['Genero']) ?></li>
+                        <li><b>Editorial:</b> <?= htmlspecialchars($libro['Editorial']) ?></li>
+                        <li><b>Ejemplares:</b> <?= htmlspecialchars($libro['Ejemplar']) ?></li>
+                    </ul>
+            
+                    <div class="sintesis">
+                        <p>"<?= htmlspecialchars($libro['Sinopsis'] ?? 'Sin sinopsis disponible.') ?>"</p>
+                    </div>
+            
+                    <div class="buttons">
+                        <form action="prestamos.php" method="POST">
+                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+                            <input type="hidden" name="libro_id" value="<?= $libro['id_Libro'] ?>"> <!-- ID del libro dinámico -->
+                            <input class="btn-solicitar" type="submit" value="Solicitar Préstamo">
+                        </form>
+                    </div>
+                </div>
             </div>
 
         </div>
