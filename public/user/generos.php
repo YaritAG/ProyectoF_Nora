@@ -155,30 +155,25 @@ $generos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 
                 <?php foreach ($generos as $genero): ?>
-                <div class="sec-genero-libro">
-                    <!-- URL de la página del género -->
-                    <a href="generos/<?= strtolower(str_replace(' ', '_', $genero['Nombre'])) ?>/index.html" class="link-genero">
-                        <div class="container-cards">
-                            <div class="frente">
-                                <!-- Imagen del género -->
-                                <img src="<?= htmlspecialchars($genero['Imagen']) ?>"
-                                    alt="Imagen de <?= htmlspecialchars($genero['Nombre']) ?>" class="img-genero">
-                                <div class="inner">
-                                    <!-- Nombre del género -->
-                                    <p><?= htmlspecialchars($genero['Nombre']) ?></p>
+                    <div class="sec-genero-libro">
+                        <a href="generos/<?= strtolower(str_replace(' ', '_', $genero['Nombre'])) ?>/index.html" class="link-genero">
+                            <div class="container-cards">
+                                <div class="frente">
+                                    <img src="<?= htmlspecialchars($genero['Imagen']) ?>"
+                                        alt="Imagen de <?= htmlspecialchars($genero['Nombre']) ?>" class="img-genero">
+                                    <div class="inner">
+                                        <p><?= htmlspecialchars($genero['Nombre']) ?></p>
+                                    </div>
+                                </div>
+                                <div class="detras">
+                                    <div class="inner">
+                                        <p><?= htmlspecialchars($genero['Descripcion']) ?></p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="detras">
-                                <div class="inner">
-                                    <!-- Descripción del género -->
-                                    <p><?= htmlspecialchars($genero['Descripcion']) ?></p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                        </a>
+                    </div>
                 <?php endforeach; ?>
-
             </div>
         </div>
     </div>

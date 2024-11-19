@@ -42,42 +42,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
     }
 }
 
-// Manejar acciones POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? null;
     $genero = $_POST['genero'] ?? "";
     $descripcion = $_POST['descripcion'] ?? "";
     $imagenRuta = null;
 
-    // Manejar la imagen subida
+    // Manejo de la imagen
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $directorioSubida = '../../assets/imgs/generos/';
         if (!is_dir($directorioSubida)) {
             mkdir($directorioSubida, 0755, true);
         }
-        $nombreArchivo = uniqid() . '_' . basename($_FILES['imagen']['name']);
+
+        // Obtener la extensión del archivo
+        $extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
+
+        // Generar el nuevo nombre basado en el nombre del género
+        $nombreLimpio = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $genero)); // Limpiar caracteres especiales
+        $nombreArchivo = $nombreLimpio . '.' . $extension;
+
         $rutaCompleta = $directorioSubida . $nombreArchivo;
 
-        // Validar el tamaño y formato de la imagen
+        // Validar tamaño y formato de la imagen
         if ($_FILES['imagen']['size'] > 2 * 1024 * 1024) {
             $_SESSION['mensaje'] = "El archivo es demasiado grande. Máximo permitido: 2 MB.";
             header('Location: verGeneros.php');
             exit;
         }
 
-        $formatosPermitidos = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($_FILES['imagen']['type'], $formatosPermitidos)) {
+        $formatosPermitidos = ['jpeg', 'png', 'gif', 'jpg'];
+        if (!in_array(strtolower($extension), $formatosPermitidos)) {
             $_SESSION['mensaje'] = "Formato de archivo no permitido. Solo se permiten imágenes JPEG, PNG y GIF.";
             header('Location: verGeneros.php');
             exit;
         }
 
+        // Mover archivo y guardar ruta
         if (move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaCompleta)) {
-            $imagenRuta = 'assets/imgs/generos/' . $nombreArchivo;
+            $imagenRuta = 'assets/imgs/generos/' . $nombreArchivo; // Ruta relativa que se guarda en la base de datos
         } else {
             $_SESSION['mensaje'] = "Error al subir la imagen.";
             header('Location: verGeneros.php');
             exit;
+        }
+    }
+
+    // Guardar en la base de datos
+    if ($accion === 'actualizar') {
+        if (empty($id)) {
+            $stmt = $conn->prepare("INSERT INTO tgenero (Nombre, Descripcion, Imagen) VALUES (:nombre, :descripcion, :imagen)");
+            $stmt->bindParam(':nombre', $genero);
+            $stmt->bindParam(':descripcion', $descripcion);
+            $stmt->bindParam(':imagen', $imagenRuta);
+            $stmt->execute();
+            $_SESSION['mensaje'] = "Género agregado correctamente.";
+        } else {
+            if ($imagenRuta) {
+                $stmt = $conn->prepare("UPDATE tgenero SET Nombre = :nombre, Descripcion = :descripcion, Imagen = :imagen WHERE id_Genero = :id");
+                $stmt->bindParam(':imagen', $imagenRuta);
+            } else {
+                $stmt = $conn->prepare("UPDATE tgenero SET Nombre = :nombre, Descripcion = :descripcion WHERE id_Genero = :id");
+            }
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':nombre', $genero);
+            $stmt->bindParam(':descripcion', $descripcion);
+            $stmt->execute();
+            $_SESSION['mensaje'] = "Género actualizado correctamente.";
         }
     }
 
@@ -104,6 +135,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['mensaje'] = "Género actualizado correctamente.";
         }
     }
+
+    // Manejo de la acción "enviar"
+    if ($accion === 'enviar') {
+        // Puedes realizar aquí la lógica adicional si es necesario, como actualizar algún estado
+        $stmt = $conn->prepare("UPDATE tgenero SET Agregado = 1 WHERE id_Genero = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $_SESSION['mensaje'] = "Género enviado correctamente.";
+        header('Location: ../user/generos.php'); // Redirige a la vista de géneros de usuario
+        exit;
+    }
+
 
     // Eliminar género
     if ($accion === 'borrar') {
